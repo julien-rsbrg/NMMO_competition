@@ -1,0 +1,39 @@
+Install a specific version of python: 
+https://www.rosehosting.com/blog/how-to-install-and-switch-python-versions-on-ubuntu-20-04/
+
+$ sudo apt install python3.9 -y
+$ python3.9 -V
+$ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.9 2
+$ sudo update-alternatives --config python 
+or
+$ sudo update-alternatives --config python3
+to choose the version 3.9:
+$ 2 
+check:
+$ python -V 
+or 
+$ python3 -V
+$
+
+Install pip:
+$ sudo apt install python3-pip
+
+$ pip3 --version
+expect something like:
+pip 20.0.2 from /usr/lib/python3/dist-packages/pip (python 3.9)
+
+Starter kit NMMO competition:
+$ git clone http://gitlab.aicrowd.com/neural-mmo/ijcai2022-nmmo-starter-kit.git
+$ virtualenv venv_ijcai2022_nmmo
+$ source ./venv_ijcai2022_nmmo/bin/activate
+$ pip list
+$ 
+$ sudo apt install git-lfs
+$ sudo apt-get install python3.9-dev
+$ pip install git+http://gitlab.aicrowd.com/henryz/ijcai2022nmmo.git
+$
+$ pip install -r requirements_tool.txt
+$
+$ pip list
+$
+$
