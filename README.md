@@ -1,8 +1,7 @@
 # NMMO_competition
 
-TODO list:
-
->Install all requirements
->Send and run a first submission
->Read NMMO paper
+TODO list:<br/>
+-Install all requirements<br/>
+>Send and run a first submission<br/>
+>Read NMMO paper<br/>
 >
