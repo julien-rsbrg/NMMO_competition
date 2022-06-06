@@ -32,8 +32,8 @@ $ sudo apt install git-lfs
 $ sudo apt-get install python3.9-dev
 $ pip install git+http://gitlab.aicrowd.com/henryz/ijcai2022nmmo.git
 $
+Once in ijcai2022-nmmo-starter-kit:
 $ pip install -r requirements_tool.txt
-$
 $ pip list
 $
 $
