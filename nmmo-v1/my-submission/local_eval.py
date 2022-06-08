@@ -4,7 +4,7 @@ config = CompetitionConfig()
 
 
 my_team = submission.get_team_from_submission(
-    submission_path="nmmo-starter-kit/my-submission/",
+    submission_path="nmmo-v1/my-submission/",
     team_id="MyTeam",
     env_config=config,
 )
@@ -18,4 +18,5 @@ teams.extend([scripted.RandomTeam(f"Random-{i}", config) for i in range(7)])
 teams.append(my_team)
 
 ro = RollOut(config, teams, parallel=True, show_progress=True)
-ro.run(n_episode=1)
+# ro.run(n_episode=1)
+print('config:', config)

@@ -28,6 +28,8 @@ $ virtualenv venv_ijcai2022_nmmo
 $ source ./venv_ijcai2022_nmmo/bin/activate
 $ pip list
 $ 
+
+
 $ sudo apt install git-lfs
 $ sudo apt-get install python3.9-dev
 $ pip install git+http://gitlab.aicrowd.com/henryz/ijcai2022nmmo.git
