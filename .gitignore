@@ -1,3 +1,5 @@
 venv*
 perso*
-monobeast_global
+baselines-nmmo
+client
+environnement
