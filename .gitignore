@@ -1,6 +1,7 @@
 venv*
 perso*
 baselines-nmmo
+baselines_nmmo
 client
 environment
 starter_kit
