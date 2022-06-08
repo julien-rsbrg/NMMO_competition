@@ -1,9 +1,0 @@
-__pycache__/
-*.pyc
-.vscode
-maps/
-results/
-*.out
-*.replay
-*.log
-monobeast/training/*.png

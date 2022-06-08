@@ -1,6 +1,0 @@
-dm-tree==0.1.6
-gym==0.23.1
-numpy==1.22.3
-ray[rllib]==1.10.0
-supersuit==3.3.5
-torch==1.10.0
