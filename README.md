@@ -17,7 +17,7 @@ Go to your project folder, then :
       #Put the starter kit repo in ./ and rename it ./starter_kit/, if no starter kit install with "git clone http://gitlab.aicrowd.com/neural-mmo/ijcai2022-nmmo-starter-kit.git"
       pip install nmmo[cleanrl]
       git clone https://github.com/neuralmmo/baselines baselines_nmmo   #repo used for learning NMMO from tutorial
-      echo YOUR_WANDB_API_KEY > baselines-nmmo/wandb_api_key            #optional
+      echo YOUR_WANDB_API_KEY > baselines_nmmo/wandb_api_key            #optional
       git clone https://github.com/neuralmmo/environment                
       git clone https://github.com/neuralmmo/client                     
 
