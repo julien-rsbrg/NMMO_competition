@@ -13,7 +13,7 @@ check:
 $ python -V 
 or 
 $ python3 -V
-$
+
 
 Install pip:
 $ sudo apt install python3-pip
@@ -37,5 +37,31 @@ $
 Once in ijcai2022-nmmo-starter-kit:
 $ pip install -r requirements_tool.txt
 $ pip list
-$
-$
+
+
+
+Install CUDA 10.2 on WSL (already done by default)
+
+$ sudo apt update
+$ apt list --upgradable
+$ sudo apt install nvidia-cuda-toolkit
+
+____
+may have an error at sudo apt-get update: ModuleNotFoundError: No module named 'apt_pkg'
+Reinstall python3:
+$ sudo apt remove python3-apt
+$ sudo apt autoremove
+$ sudo apt autoclean
+$ sudo apt install python3-apt
+____
+
+
+Test installation:
+activate your venv with torch installed
+$ python
+> import torch
+> list([torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())])
+
+Error: If you want to use the NVIDIA *** GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/
+
+  warnings.warn(incompatible_device_warn.format(device_name, capability, " ".join(arch_list), device_name))

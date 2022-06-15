@@ -4,5 +4,7 @@ baselines-nmmo
 baselines_nmmo
 client
 environment
-starter_kit
+starter-kit*
+starter_kit*
 maps
+runs*
