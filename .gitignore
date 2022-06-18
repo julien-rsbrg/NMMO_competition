@@ -8,7 +8,8 @@ starter_kit
 maps
 monobeast_repo
 
-
+.vscode
+tmp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
