@@ -1,9 +1,11 @@
 print("Imports...")
+
 import gym
 import ray
 from ray import tune
 from ray.rllib.agents import ppo
 from ray.tune.logger import pretty_print
+import logging
 
 import adversarial_training.envs
 from adversarial_training.agents import Agent, RandomAgent
@@ -36,11 +38,12 @@ shutil.rmtree(ray_results, ignore_errors=True, onerror=None)
 #Define a trainer as a RL algorithm, an env, and a config for training.
 print("Define trainer...")
 n_players = 4
+ppo.DEFAULT_CONFIG
 trainer = ppo.PPOTrainer( env = "PD",
                 config = { 
                    "env_config" : { "agents" : [RandomAgent(action_space=gym.spaces.Discrete(2)) for _ in range(n_players)], 
                                     "agent_idx" : 0},       #value is "config" such that an instance of the env would be created using EnvClass(**config) 
-                   "framework" : "torch",   #or "tf"             
+                   "framework" : "torch",   #or "tf"   
                    }    
     )
 
@@ -48,7 +51,7 @@ trainer = ppo.PPOTrainer( env = "PD",
 
 #Training with print evaluation
 print("Training...")
-N_ITER = 5
+N_ITER = 10
 s = "{:3d} reward {:6.2f}/{:6.2f}/{:6.2f} len {:6.2f} saved {}"
 
 for n in range(N_ITER):
