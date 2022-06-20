@@ -10,6 +10,8 @@ monobeast_repo
 
 .vscode
 tmp
+practical_rllib_tutorial
+test.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
