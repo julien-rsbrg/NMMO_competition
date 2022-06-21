@@ -36,8 +36,8 @@ print("Defining checkpoint...")
 print("Define location for checkpoint...")
 CHECKPOINT_ROOT = "tmp/ppo/CartPole"
 shutil.rmtree(CHECKPOINT_ROOT, ignore_errors=True, onerror=None)
-ray_results = os.getenv("HOME") + "/ray_results/"
-shutil.rmtree(ray_results, ignore_errors=True, onerror=None)
+# ray_results = os.getenv("HOME") + "/ray_results/"
+# shutil.rmtree(ray_results, ignore_errors=True, onerror=None)  #Delete tensorboard logs (if you want to)
 
 
 

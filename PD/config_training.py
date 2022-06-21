@@ -1,6 +1,7 @@
 from ray.rllib.policy.policy import PolicySpec
 
 from PD.env import PD_MultiAgentEnv      #to register PD_MultiAgentEnv in gym_spaces
+from PD.policies import PrisonerPolicy
 from PD.gym_spaces import prisoner_action_space, prisoner_observation_space
 import PD.CONFIG as CONFIG
 
