@@ -5,16 +5,15 @@ import os
 import ray
 from ray import tune
 
-from CartPole_indiv.env import *
 from CartPole_indiv.CONFIG import *
 
 
 
 print("Configurating...")
 #Import trainer and config for trainer (algo hyperparameters, some training parameters)
-from CartPole.trainer import SimpleDQNTrainer, SimplePPOTrainer, config_concerning_trainer
+from CartPole_indiv.trainer import SimpleDQNTrainer, SimplePPOTrainer, config_concerning_trainer
 #Import config for training (env/env_config, framework, ressource allocation and other non-algorithm dependant training parameters)
-from CartPole.config_training import config_concerning_training
+from CartPole_indiv.config_training import config_concerning_training
 #Merge config
 config = config_concerning_trainer.copy()
 config.update(config_concerning_training)
