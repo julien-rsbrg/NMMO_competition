@@ -35,12 +35,15 @@ policies = get_multiagent_policies()
 
 # see https://github.com/ray-project/ray/blob/releases/1.10.0/rllib/agents/trainer.py
 config_concerning_training = {
-        "num_workers" : 0,           # <!> 0 for single-machine training
+        "num_workers" : 2,           # <!> 0 for single-machine training
         "simple_optimizer": True,
         "ignore_worker_failures": True,
         "batch_mode": "complete_episodes",
         "framework": "torch",
-
+        "model" : {
+            "fcnet_hiddens": [1],
+            "fcnet_activation": "linear",
+            },
         # "env": "multiagent_PrisonerDilemma",          #other way to specify env. Requires to have register the env before.
         "env": PD_MultiAgentEnv,
         "env_config": {"n_players": CONFIG.n_players},
@@ -57,4 +60,10 @@ config_concerning_training = {
             "policy_map_cache": None,
             "policy_map_capacity": 100,
         },
+        
+        ### Evaluation config
+        "evaluation_num_workers": 1,
+        "evaluation_config": {
+            "render_env": True,
+            }
     }
