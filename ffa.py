@@ -1,7 +1,7 @@
 from ijcai2022nmmo import CompetitionConfig, TeamBasedEnv
 from ijcai2022nmmo.evaluation.team import Team
 from ijcai2022nmmo.scripted import RandomTeam, ForageTeam, CombatTeam
-from perso_local.perso_script import CombatTribrid1Team
+from OurScriptedTeam import CombatTribrid1Team, CombatMRTeam
 
 # My parameters
 n_teams = 16
@@ -36,11 +36,11 @@ class NotMovingTeam(Team):
         return actions
 
 
-team_classes = [NotMovingTeam]+[CombatTribrid1Team] + \
+team_classes = [CombatMRTeam]+[CombatTribrid1Team] + \
     [CombatTeam for nbr_team in range(n_teams-2)]
 
-teams = [Team(team_id="team"+str(nbr_team), env_config=env.config)
-         for nbr_team, Team in enumerate(team_classes)]
+teams = [CombatMRTeam(team_id="team"+str(0), env_config=env.config, epsilon_MR=1)]+[Team(team_id="team"+str(nbr_team+1), env_config=env.config)
+                                                                                    for nbr_team, Team in enumerate(team_classes[1:])]
 
 
 # Reset and get first observations
