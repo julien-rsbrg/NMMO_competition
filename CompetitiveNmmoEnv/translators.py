@@ -114,8 +114,8 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
         observationUsefull = {"Entity": {}, "Tile": {}}
         # get info Tile
         Tile_info = observation["Tile"]["Continuous"][keep_col_til]  # !! list
-        Tile_info = np.stack([Tile_info[i]
-                              for i in range(len(Tile_info))], axis=-1)
+        Tile_info = np.concatenate([Tile_info[i]
+                                    for i in range(len(Tile_info))], axis=0)
         observationUsefull["Tile"] = Tile_info
 
         #
@@ -138,14 +138,20 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
         observationUsefull["Entity"]["N_NPCs"] = N_NPCs
 
         BFF_info = observation["Entity"]["Continuous"][BFF_idx, keep_col_ent]
+        if BFF_idx == 0:
+            BFF_info = 0*BFF_info
         info_cards.append(BFF_info)
         weakest_player_info = observation["Entity"]["Continuous"][weakest_player_idx, keep_col_ent]
+        if weakest_player_idx == 0:
+            weakest_player_info = 0*weakest_player_info
         info_cards.append(weakest_player_info)
         weakest_NPC_info = observation["Entity"]["Continuous"][weakest_NPC_idx, keep_col_ent]
+        if weakest_NPC_idx == 0:
+            weakest_NPC_info = 0*weakest_NPC_info
         info_cards.append(weakest_NPC_info)
 
-        entities_infos = np.stack([info_cards[i]
-                                  for i in range(len(info_cards))], axis=-1)
+        entities_infos = np.concatenate([info_cards[i]
+                                         for i in range(len(info_cards))], axis=0)
         observationUsefull["Entity"][entities_infos] = entities_infos
         return observationUsefull
 

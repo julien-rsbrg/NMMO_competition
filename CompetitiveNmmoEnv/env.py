@@ -14,7 +14,7 @@ from typing import Dict, Union
 import typing
 
 soldier_observation_space = Discrete(1)
-soldier_action_space = Discrete(2)
+soldier_action_space = Discrete(3)
 
 obs2obsUsefull = ObservationToZero()
 actionUsefull2action = ActionUsefullToNoAction()
