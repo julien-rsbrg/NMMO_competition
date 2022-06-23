@@ -26,7 +26,8 @@ MA_ENV_CLASS = PD_MultiAgentEnv
 MA_ENV_NAME = "multiagent_PrisonnerDilemma"
 MA_ENV_CONFIG = {"n_players": n_players}
 
-
+action_space = spaces.Discrete(2)
+observation_space = spaces.Discrete(1)
 
 
 
@@ -53,9 +54,6 @@ class Trainer(ppo.PPOTrainer):
 
 ### MULTI AGENT CONFIG ###
 
-prisoner_action_space = spaces.Discrete(2)
-prisoner_observation_space = spaces.Discrete(1)
-
 def policy_map_fn(agent_id: str, _episode=None, _worker=None, **_kwargs) -> str:
     """
     Maps agent_id to policy_id
@@ -71,8 +69,8 @@ def get_multiagent_policies() -> Dict[str,PolicySpec]:
     #Policy of the VirtualAgent "prisoner"
     policies['prisoner_policy'] = PolicySpec(
                 policy_class=None, # use default in trainer, or could be YourHighLevelPolicy
-                observation_space=prisoner_observation_space,
-                action_space=prisoner_action_space,
+                observation_space=observation_space,
+                action_space=action_space,
                 config={}
     )
     return policies

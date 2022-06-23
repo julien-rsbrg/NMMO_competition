@@ -9,8 +9,9 @@ import os
 import ray
 from ray.rllib.agents.ppo import ppo
 from ray.rllib.policy.policy import PolicySpec
+from ray.tune.registry import register_env
 from gym import spaces
-
+from gym.spaces import Discrete, Tuple, MultiDiscrete
 from utils import *
 
 
@@ -20,20 +21,19 @@ n_teams = 16
 n_soldiers = 8
 n_agents = n_teams * n_soldiers
 RUN_WITH_TUNE = False
-NUM_ITERATIONS = 100
-CHECKPOINT_ROOT = "tmp/ppo/MA_train"
+NUM_ITERATIONS = 50
+CHECKPOINT_ROOT = "tmp/ppo/MAG_train"
 
-from CompetitiveEnv.env import CompetitionMultiAgentEnv
-MA_ENV_CLASS = CompetitionMultiAgentEnv
-MA_ENV_NAME = "CompetitionMultiAgentEnv"
+from CompetitiveEnv.env import CompetitionMultiAgentEnv, CompetitionMultiAgentEnvGrouped
+MA_ENV_CLASS = CompetitionMultiAgentEnvGrouped
+MA_ENV_NAME = "CompetitionMultiAgentEnvGrouped"
 MA_ENV_CONFIG = {"n_teams": n_teams, "n_soldiers": n_soldiers}
 
 observation_space = spaces.Box(low = 0, high = CompetitionMultiAgentEnv.hp_max, shape = (n_agents,), dtype = np.float32)
 action_space = spaces.Discrete(n_agents)
 
-
-
-
+grouped_observation_space = Tuple([observation_space] * n_teams)
+grouped_action_space = Tuple([action_space] * n_teams)
 
 ### TRAINER ###
 config_concerning_trainer = ppo.DEFAULT_CONFIG.copy()
@@ -57,7 +57,6 @@ class Trainer(ppo.PPOTrainer):
 
 ### MULTI AGENT CONFIG ###
 
-
 def policy_map_fn(agent_id: str, _episode=None, _worker=None, **_kwargs) -> str:
     """
     Maps agent_id to policy_id
@@ -70,8 +69,8 @@ def get_multiagent_policies() -> Dict[str,PolicySpec]:
     #Policy of the VirtualAgent "prisoner"
     policies['prisoner_policy'] = PolicySpec(
                 policy_class=None, # use default in trainer, or could be YourHighLevelPolicy
-                observation_space=observation_space,
-                action_space=action_space,
+                observation_space=grouped_observation_space,
+                action_space=grouped_action_space,
                 config={}
     )
     return policies
@@ -98,7 +97,7 @@ multi_agent_config = {
 ### CONFIG ###
 
 config_concerning_training = {
-        "num_workers" : 8,           # <!> 0 for single-machine training
+        "num_workers" : 2,           # <!> 0 for single-machine training
         "simple_optimizer": True,
         "ignore_worker_failures": True,
         "batch_mode": "complete_episodes",
@@ -141,7 +140,7 @@ print("Defining checkpoint...")
 # rllib rollout CHECKPOINT_ROOT/checkpoint_000006/checkpoint-6 --config "{\"env\": \"multiagent_PrisonerDilemma\"}" --run PPO --steps 200
 print("Define location for checkpoint...")
 shutil.rmtree(CHECKPOINT_ROOT, ignore_errors=True, onerror=None)
-ray_results = os.path.expanduser("~")  + "/ray_results/"
+ray_results = os.path.expanduser("~") + "/ray_results/"
 
 
 
@@ -162,6 +161,8 @@ for n in range(NUM_ITERATIONS):
         result["episode_len_mean"],
         file_name
     ))
+    print("Evaluation:")
+    info = trainer.evaluate()
 
 
 

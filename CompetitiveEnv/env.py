@@ -1,10 +1,13 @@
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from ray.tune.registry import register_env
 import gym
+from gym import spaces
+from gym.spaces import Dict, Discrete, MultiDiscrete, Tuple
+
 from utils import *
 
-from typing import *
-
+from typing import Dict
+import typing
 
 
 class CompetitionMultiAgentEnv(MultiAgentEnv):
@@ -16,7 +19,9 @@ class CompetitionMultiAgentEnv(MultiAgentEnv):
         self._agents_ids = [str(i) + '_' + str(j) for i in range(n_teams) for j in range(n_soldiers)]
         # self.observation_space = gym.spaces.Box(low=0, high=10, shape=(n_teams * n_soldiers,), dtype=np.float32) #for bug
         # self.action_space = gym.spaces.Discrete(n_teams * n_soldiers) # for bug
-        self.observation_space = None
+        n_agents = n_teams * n_soldiers
+        self.observation_space = spaces.Box(low = 0, high = CompetitionMultiAgentEnv.hp_max, shape = (n_agents,), dtype = np.float32)
+        self.action_space = spaces.Discrete(n_agents)
         
         ### Particular to this env attributes
         self.n_teams = n_teams
@@ -27,10 +32,10 @@ class CompetitionMultiAgentEnv(MultiAgentEnv):
         """
         Reset the env and return the initial observations for all ready agents (ie all of them for this initialization).
         """
-        self.healths = {agent_id: hp for agent_id in self._agents_ids}
+        self.healths = {agent_id: self.hp_max for agent_id in self._agents_ids}
         return {agent_id: self.health_to_obs(num_teams=self.id_to_numbers(agent_id)[0], healths = self.healths) for agent_id in self._agents_ids}
     
-    def step(self, actions: dict[str, Action]) -> Tuple[dict[int, Obs], dict[int, float], dict[int, bool], dict[int, dict]]:
+    def step(self, actions: dict[str, Action]) -> typing.Tuple[dict[int, Obs], dict[int, float], dict[int, bool], dict[int, dict]]:
         """
         Apply actions and return observations, rewards, dones for all ready agents (ie all living agents) as well as infos for all agents.
         """
@@ -87,7 +92,7 @@ class CompetitionMultiAgentEnv(MultiAgentEnv):
                 dones_for_ready_agents[agent_id] = dones[agent_id]
               
         #infos
-        infos = {agent_id : {} for agent_id in self._agents_ids}
+        infos = {}
         
         #returns
         return observations, rewards_for_ready_agents, dones_for_ready_agents, infos
@@ -120,6 +125,51 @@ class CompetitionMultiAgentEnv(MultiAgentEnv):
 
 
 
+class CompetitionMultiAgentEnvGrouped(MultiAgentEnv):
+    def __init__(self, **env_config):
+        super().__init__()
+        
+
+        class Env(CompetitionMultiAgentEnv):
+            def step(self, actions):
+                non_info_obs = np.array([0 for _ in range(self.n_teams * self.n_soldiers)])
+                obs_dict, rewards, dones, infos = CompetitionMultiAgentEnv.step(self, actions)
+                for agent_id in self._agents_ids:
+                    if not agent_id in obs_dict:
+                        obs_dict[agent_id] = non_info_obs
+                        rewards[agent_id] = 0
+                        dones[agent_id] = True
+                return obs_dict, rewards, dones, infos
+        env = Env(**env_config)
+
+        self.n_teams = env.n_teams
+        self.n_soldiers = env.n_soldiers
+        tuple_obs_space = Tuple([env.observation_space for _ in range(env.n_teams)])
+        tuple_act_space = Tuple([env.action_space for _ in range(env.n_teams)])
+
+        self.env = env.with_agent_groups(
+            groups={"team"+str(num_team) : [str(num_team) + '_' + str(i) for i in range(env.n_soldiers)] for num_team in range(env.n_teams)},
+            obs_space=tuple_obs_space,
+            act_space=tuple_act_space,
+        )
+        self.observation_space = env.observation_space
+        self.action_space = env.action_space
+        self._agent_ids = {"team"+str(num_team) for num_team in range(env.n_teams)}
+        self._skip_env_checking = True
+
+    def reset(self):
+        return self.env.reset()
+
+    def step(self, actions):
+        return self.env.step(actions)
+    
+    def render(self):
+        self.env.render()
+    
+    
+    
+    
+    
 ### Register env
 def env_creator(env_config):
     n_teams = env_config['n_teams']
@@ -129,11 +179,19 @@ register_env("CompetitionMultiAgentEnv", env_creator)
 
 
 
+#Register grouped env
+def env_creator_grouped(env_config):
+    return CompetitionMultiAgentEnvGrouped(**env_config)
+register_env("CompetitionMultiAgentEnvGrouped", env_creator_grouped)
+
+
+
+
 
 ### Register individualized env (against random)
 from contrib.env_wrappers import IndividualEnvWrapper
 from contrib.actors import RandomActor
-def env_creator(env_config):
+def env_creator_single(env_config):
     n_teams = env_config['n_teams']
     n_soldiers = env_config['n_soldiers']
     soldier_action_space = gym.spaces.Discrete(n_soldiers * n_teams)
@@ -142,4 +200,4 @@ def env_creator(env_config):
                                 actors={agent_id : RandomActor(action_space=soldier_action_space) for agent_id in MA_env._agents_ids},
                                 agent_id="0_0",
                                 )
-register_env("SingleAgentAgainstRandomCompetitionMultiAgentEnv", env_creator)
+register_env("SingleAgentAgainstRandomCompetitionMultiAgentEnv", env_creator_single)
