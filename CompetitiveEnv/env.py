@@ -12,6 +12,8 @@ import typing
 
 class CompetitionMultiAgentEnv(MultiAgentEnv):
     hp_max = 5
+    timestep = 0
+    episode = 0
                                 
     def __init__(self, n_teams, n_soldiers):
         ### MAENV attributes
@@ -32,6 +34,9 @@ class CompetitionMultiAgentEnv(MultiAgentEnv):
         """
         Reset the env and return the initial observations for all ready agents (ie all of them for this initialization).
         """
+        self.episode += 1
+        print("Env reset :", self.episode, " Timestep: ", self.timestep, end = '\r')
+
         self.healths = {agent_id: self.hp_max for agent_id in self._agents_ids}
         return {agent_id: self.health_to_obs(num_teams=self.id_to_numbers(agent_id)[0], healths = self.healths) for agent_id in self._agents_ids}
     
@@ -39,6 +44,8 @@ class CompetitionMultiAgentEnv(MultiAgentEnv):
         """
         Apply actions and return observations, rewards, dones for all ready agents (ie all living agents) as well as infos for all agents.
         """
+        self.timestep += 1
+
         self.last_actions = actions
         rewards = {}
         

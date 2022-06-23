@@ -5,6 +5,9 @@ print("Imports...")
 from typing import *
 import shutil
 import os
+import multiprocessing
+
+
 
 import ray
 from ray.rllib.agents.ppo import ppo
@@ -22,7 +25,7 @@ n_teams = 16
 n_soldiers = 8
 n_agents = n_teams * n_soldiers
 RUN_WITH_TUNE = False
-NUM_ITERATIONS = 100
+NUM_ITERATIONS = 10
 CHECKPOINT_ROOT = "tmp/ppo/MA_train"
 
 from CompetitiveEnv.env import CompetitionMultiAgentEnv
@@ -96,17 +99,17 @@ config_concerning_training = {
         
         
         # === Worker & sampling settings ===
-        "num_workers" : 0,           # <!> 0 for single-machine training. Number of rollout worker actors to create for parallel sampling
-        # "num_envs_per_worker": 1,
-        # "rollout_fragment_length": 10,  #Per-sampler batch size / Rollout worker batch size 
-        # "train_batch_size": 50,         #Batch size for training, obtained from the concatenation of rollout worker batches
-        # "sgd_minibatch_size": 25,  
-        # "batch_mode": "truncate_episodes",  # or "complete_episodes"
-        # "timesteps_per_iteration": 10,
+        "num_workers" : 2,           # <!> 0 for single-machine training. Number of rollout worker actors to create for parallel sampling
+        "num_envs_per_worker": 1,
+        "rollout_fragment_length": 32,  #Per-sampler batch size / Rollout worker batch size 
+        "train_batch_size": 512,         #Batch size for training, obtained from the concatenation of rollout worker batches
+        "sgd_minibatch_size": 64,  
+        "batch_mode": "truncate_episodes",  # or "complete_episodes"
+        "timesteps_per_iteration": 0,
         
         # === Resource Settings ===
-        "num_gpus": 0,
-        "num_cpus_per_worker": 1,
+        "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
+        "num_cpus_per_worker": 4,
         "num_gpus_per_worker": 0,
 
         # === Settings for the Trainer process ===
@@ -144,9 +147,9 @@ config_concerning_training = {
         "custom_eval_function": None,
         
         # === Debug Settings ===
-        "log_level": "WARN",
+        "log_level": "INFO",
         "callbacks": DefaultCallbacks,
-        "simple_optimizer": True,
+        # "simple_optimizer": True,
         "ignore_worker_failures": True,
         "recreate_failed_workers": False,
         "fake_sampler": False,
