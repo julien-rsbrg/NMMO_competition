@@ -9,6 +9,8 @@ import os
 import ray
 from ray.rllib.agents.ppo import ppo
 from ray.rllib.policy.policy import PolicySpec
+from ray.rllib.agents.callbacks import DefaultCallbacks
+
 from gym import spaces
 
 from utils import *
@@ -37,15 +39,6 @@ action_space = spaces.Discrete(n_agents)
 
 ### TRAINER ###
 config_concerning_trainer = ppo.DEFAULT_CONFIG.copy()
-config_concerning_trainer.update(
-    {
-    # The batch size collected for each worker
-    "rollout_fragment_length": 1000,
-    # Can be "complete_episodes" or "truncate_episodes"
-    "batch_mode": "complete_episodes",
-    "simple_optimizer": True,
-    })
-
 class Trainer(ppo.PPOTrainer):
     pass
 
@@ -97,34 +90,71 @@ multi_agent_config = {
 ### CONFIG ###
 
 config_concerning_training = {
-        "num_workers" : 8,           # <!> 0 for single-machine training
-        "simple_optimizer": True,
-        "ignore_worker_failures": True,
-        "batch_mode": "complete_episodes",
+        # === General settings ===
         "framework": "torch",
         "disable_env_checking": True,
+        
+        
+        # === Worker & sampling settings ===
+        "num_workers" : 0,           # <!> 0 for single-machine training. Number of rollout worker actors to create for parallel sampling
+        # "num_envs_per_worker": 1,
+        # "rollout_fragment_length": 10,  #Per-sampler batch size / Rollout worker batch size 
+        # "train_batch_size": 50,         #Batch size for training, obtained from the concatenation of rollout worker batches
+        # "sgd_minibatch_size": 25,  
+        # "batch_mode": "truncate_episodes",  # or "complete_episodes"
+        # "timesteps_per_iteration": 10,
+        
+        # === Resource Settings ===
+        "num_gpus": 0,
+        "num_cpus_per_worker": 1,
+        "num_gpus_per_worker": 0,
+
+        # === Settings for the Trainer process ===
+        "gamma": 0.99,
+        "lr": 0.0001,
         "model" : {
-            "fcnet_hiddens": [8, 8],
+            "fcnet_hiddens": [4, 4],
             "fcnet_activation": "relu",
             },
-        # "env": "multiagent_PrisonerDilemma",          #other way to specify env. Requires to have register the env before.
+        "optimizer": {},
+        
+        # === Settings for the Env ===
+        "horizon" : 30,
         "env": MA_ENV_NAME,
         "env_config": MA_ENV_CONFIG,
+            # "observation_space": None,
+            # "action_space": None,
+        "render_env": False,        #render during training...
+        "clip_rewards": None,
+        "normalize_actions": True,
+                
 
-        ### MultiAgent config : defines (training?) policies and virtual_agent_id to policy_id mapping.
+        # === Multi agent === defines (training?) policies and virtual_agent_id to policy_id mapping.
         "multiagent": multi_agent_config,
         
-        ### Evaluation config
-        "evaluation_num_workers": 1,
-        "evaluation_config": {
-            "render_env": True,
-            }
+        # === Exploration settings ===
+        "explore": True,
+        
+        # === Evaluation ===  
+        "evaluation_num_workers": 0,
+        "evaluation_config": MA_ENV_CONFIG,
+        "evaluation_interval" : 3,
+        "evaluation_duration": 1,
+        "evaluation_duration_unit": "episodes",
+        "custom_eval_function": None,
+        
+        # === Debug Settings ===
+        "log_level": "WARN",
+        "callbacks": DefaultCallbacks,
+        "simple_optimizer": True,
+        "ignore_worker_failures": True,
+        "recreate_failed_workers": False,
+        "fake_sampler": False,
+
     }
 
 config = config_concerning_trainer.copy()
 config.update(config_concerning_training)
-
-
 
 ###Initialize ray
 print("Ray restarting...")
