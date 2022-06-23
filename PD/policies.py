@@ -4,17 +4,17 @@ This is for PyTorch but TensorFlow is analogous
 """
 from ray.rllib import TorchPolicy
 
-from PD.models import MyModel
+from PD.models import TableOf2_Model
 
 
 class PrisonerPolicy(TorchPolicy):
 
     def __init__(self, observation_space, action_space, config):
-        model = MyModel(observation_space, 
+        model = TableOf2_Model(observation_space, 
                                 action_space,    
                                 num_outputs=1,
                                 model_config=config,
-                                name='MyModel')
+                                name='Cooperate&BetrayValues')
         self.action_space = action_space
         self.observation_space = observation_space
         super().__init__(observation_space=observation_space,

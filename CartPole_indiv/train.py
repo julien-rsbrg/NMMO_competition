@@ -5,16 +5,15 @@ import os
 import ray
 from ray import tune
 
-from PD.env import PD_MultiAgentEnv
-from PD.CONFIG import *
+from CartPole_indiv.CONFIG import *
 
 
 
 print("Configurating...")
 #Import trainer and config for trainer (algo hyperparameters, some training parameters)
-from PD.trainer import SimpleDQNTrainer, SimplePPOTrainer, config_concerning_trainer
+from CartPole_indiv.trainer import SimpleDQNTrainer, SimplePPOTrainer, config_concerning_trainer
 #Import config for training (env/env_config, framework, ressource allocation and other non-algorithm dependant training parameters)
-from PD.config_training import config_concerning_training
+from CartPole_indiv.config_training import config_concerning_training
 #Merge config
 config = config_concerning_trainer.copy()
 config.update(config_concerning_training)
@@ -32,11 +31,12 @@ print("Dashboard URL: http://{}".format(ray_init_info["webui_url"]))
 print("Defining checkpoint...")
 #Crée le dossier checkpoint, cela va save des checkpoints de la policy dans ce dossier. 
 #On pourra par la suite évaluer (faire des rollout) de cette policy avec l'agent (PPO) sur cet env (CartPole-v1) et pour 200 steps en tappant dans le cmd:
-# rllib rollout tmp/ppo/PD/checkpoint_000006/checkpoint-6 --config "{\"env\": \"multiagent_PrisonerDilemma\"}" --run PPO --steps 200
+# rllib rollout tmp/ppo/CartPole/checkpoint_000006/checkpoint-6 --config "{\"env\": \"CartPole6V1\"}" --run PPO --steps 200
 print("Define location for checkpoint...")
-CHECKPOINT_ROOT = "tmp/ppo/PD"
+CHECKPOINT_ROOT = "tmp/ppo/CartPoleIndiv"
 shutil.rmtree(CHECKPOINT_ROOT, ignore_errors=True, onerror=None)
-ray_results = os.getenv("HOME") + "/ray_results/"
+# ray_results = os.getenv("HOME") + "/ray_results/"
+# shutil.rmtree(ray_results, ignore_errors=True, onerror=None)  #Delete tensorboard logs (if you want to)
 
 
 
@@ -53,7 +53,7 @@ if RUN_WITH_TUNE:   #j'ai pas testé avec tune
     results = tune.run("SimplePPOTrainer", stop=stop, config=config, verbose=1, checkpoint_freq=10)
 
 else:
-    trainer = SimplePPOTrainer(config, env="multiagent_PrisonnerDilemma")
+    trainer = SimplePPOTrainer(config, env="CartPole-v1")
     
     s = "{:3d} reward {:6.2f}/{:6.2f}/{:6.2f} len {:6.2f} saved {}"
     for n in range(NUM_ITERATIONS):

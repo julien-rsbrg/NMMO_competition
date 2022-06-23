@@ -1,17 +1,22 @@
 """
-Agents are defined as objects that can act.
+Actor are defined as objects that can act.
 """
-from adversarial_training.utils import Obs, Action
+from utils import Obs, Action
 from abc import ABC, abstractmethod
 
-class Agent(ABC):
+class Actor(ABC):
     @abstractmethod
     def act(self, observation: Obs) -> Action: pass
         
-class RandomAgent(Agent):
+class RandomActor(Actor):
     def __init__(self, action_space, sample_func=lambda space: space.sample()):
         self.action_space = action_space
         self.sample_func = sample_func
     def act(self, obs: Obs) -> Action:
         return self.sample_func(self.action_space)
-    
+
+class RepetitiveActor(Actor):
+    def __init__(self, action):
+        self.action = action
+    def act(self, obs: Obs) -> Action:
+        return self.action

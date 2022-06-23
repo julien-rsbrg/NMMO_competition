@@ -5,7 +5,7 @@ from ray import tune
 from ray.rllib.agents import ppo
 from ray.tune.logger import pretty_print
 
-from adversarial_training.envs import IndividualEnvWrapper, PD_MultiAgentEnv
+from contrib.env_wrappers import IndividualEnvWrapper, PD_MultiAgentEnv
 from adversarial_training.agents import Agent, RandomAgent
 
 import shutil

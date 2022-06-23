@@ -7,7 +7,7 @@ from ray.rllib.agents import ppo
 from ray.tune.logger import pretty_print
 import logging
 
-import adversarial_training.envs
+import contrib.env_wrappers
 from adversarial_training.agents import Agent, RandomAgent
 
 import shutil
