@@ -1,8 +1,11 @@
-from ijcai2022nmmo import CompetitionConfig, scripted, submission, RollOut
-from teams import NotMovingTeam
+from ijcai2022nmmo import CompetitionConfig, scripted, submission
+from perso_rollout import RollOut
+from OurScriptedTeam import NotMovingTeam, CombatMageTeam
 import nmmo
 
-n_teams= 16
+n_teams = 16
+
+
 class TeamBattleConfig(CompetitionConfig):
     NPOP = n_teams
     NENT = 8 * n_teams
@@ -18,7 +21,8 @@ class TeamBattleConfig(CompetitionConfig):
     NMAPS = 1
     RENDER = True
     PATH_MAPS = "maps"
-    
+
+
 config = TeamBattleConfig()
 
 # my_team = submission.get_team_from_submission(
@@ -28,17 +32,20 @@ config = TeamBattleConfig()
 # )
 
 # Or initialize the team directly
-my_team = NotMovingTeam("Myteam", config = config)
+my_team = NotMovingTeam("MyTeam", config=config)
 
 teams = []
-teams.append(my_team)
-teams.extend([scripted.CombatTeam(f"Combat-{i}", config) for i in range(3)])
-teams.extend([scripted.ForageTeam(f"Forage-{i}", config) for i in range(5)])
-teams.extend([scripted.RandomTeam(f"Random-{i}", config) for i in range(7)])
+# teams.append(my_team)
+teams.extend([CombatMageTeam(f"CombatMag-{i}", config) for i in range(4)])
+teams.extend([scripted.CombatTribridTeam(
+    f"CombatTri-{i}", config) for i in range(4)])
+teams.extend([scripted.CombatTeam(f"Combat-{i}", config) for i in range(4)])
+teams.extend([scripted.ForageTeam(f"Forage-{i}", config) for i in range(4)])
+# teams.extend([scripted.RandomTeam(f"Random-{i}", config) for i in range(6)])
 teams = teams[:n_teams]
-
 
 
 if __name__ == "__main__":
     ro = RollOut(config, teams, parallel=True, show_progress=True)
-    ro.run(n_episode=1)
+    results = ro.run(n_episode=1)
+    print("results\n:", results)
