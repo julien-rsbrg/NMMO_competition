@@ -57,18 +57,17 @@ class Trainer(ppo.PPOTrainer):
 
 ### MULTI AGENT CONFIG ###
 
-
 def policy_map_fn(agent_id: str, _episode=None, _worker=None, **_kwargs) -> str:
     """
     Maps agent_id to policy_id
     """
-    return "prisoner_policy"
+    return "soldier_policy"
 
 def get_multiagent_policies() -> Dict[str,PolicySpec]:
     policies: Dict[str,PolicySpec] = {}  # policy_id to policy_spec
 
     #Policy of the VirtualAgent "prisoner"
-    policies['prisoner_policy'] = PolicySpec(
+    policies['soldier_policy'] = PolicySpec(
                 policy_class=None, # use default in trainer, or could be YourHighLevelPolicy
                 observation_space=observation_space,
                 action_space=action_space,

@@ -11,3 +11,4 @@ def obs_dict_to_string(obs_dict):
     
 class Obs: pass
 class Action: pass
+class AgentID(str): pass
