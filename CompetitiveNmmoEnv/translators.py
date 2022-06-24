@@ -101,10 +101,12 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
         return:
         -observationUsefull (dict) = {
             "Entity":{
-                "N_friends":,
+                "N_friends":, # kept in check among the 100 players the observations allow
                 "N_NPCs":,
-                "N_players":
+                "N_players":,
+                "entities_info":, # array (4,11) infos of the given soldier, the best ally, the weakest player, the weakest NPC
             }
+            "Tile":Tile_info #keep N_entity on the tiles and Type of the tiles only
         }
         '''
         # features to keep
@@ -121,7 +123,8 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
         # initialize
         observationUsefull = {"Entity": {}, "Tile": {}}
         # get info Tile
-        Tile_info = observation["Tile"]["Continuous"][keep_col_til]  # !! list
+        Tile_info = observation["Tile"]["Continuous"][:,
+                                                      keep_col_til]  # !! list
         Tile_info = np.concatenate([Tile_info[i]
                                     for i in range(len(Tile_info))], axis=0)
         observationUsefull["Tile"] = Tile_info
@@ -145,6 +148,7 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
         observationUsefull["Entity"]["N_players"] = N_players
         observationUsefull["Entity"]["N_NPCs"] = N_NPCs
 
+        # if one among BFF, weakest_player, or weaker_NPC is not perceived, its info is set to a 0 matrix
         BFF_info = observation["Entity"]["Continuous"][BFF_idx, keep_col_ent]
         if BFF_idx == 0:
             BFF_info = 0*BFF_info
