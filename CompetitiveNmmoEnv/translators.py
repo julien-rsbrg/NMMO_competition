@@ -98,6 +98,14 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
     def process(self, observation: Obs) -> Obs:
         '''
         observation of a single soldier
+        return:
+        -observationUsefull (dict) = {
+            "Entity":{
+                "N_friends":,
+                "N_NPCs":,
+                "N_players":
+            }
+        }
         '''
         # features to keep
         keep_col_til = list(range(2))
@@ -152,7 +160,7 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
 
         entities_infos = np.concatenate([info_cards[i]
                                          for i in range(len(info_cards))], axis=0)
-        observationUsefull["Entity"][entities_infos] = entities_infos
+        observationUsefull["Entity"]["entities_infos"] = entities_infos
         return observationUsefull
 
 
