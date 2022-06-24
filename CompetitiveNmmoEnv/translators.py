@@ -51,13 +51,15 @@ class ObservationToZero(ObservationToObservationUsefull):
 
 
 class ObservationToObservationUsefull(ObservationToObservationUsefull):
-    def get_row_index(list, ID):
+    def get_row_index(self, list, ID):
+        found = False
         for i, cand in enumerate(list):
             if cand == ID:
-                i
-        return None
+                print(i)
+                return i
+        return 0
 
-    def scan_soldiers_around(soldiers_caracteristics, own_population):
+    def scan_soldiers_around(self, soldiers_caracteristics, own_population):
         def update_dic(dic, row, power):
             dic["Row_index"] = row
             dic["Power"] = power
@@ -73,7 +75,7 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
         N_friends = 0
         for i in range(soldiers_caracteristics.shape[0]):
             cand_pop = soldiers_caracteristics[i,
-                                               dict_feature_col["Entity"]["Continuous"]["Populate"]]
+                                               dict_feature_col["Entity"]["Continuous"]["Population"]]
             lvl = soldiers_caracteristics[i,
                                           dict_feature_col["Entity"]["Continuous"]["Level"]]
             hp = soldiers_caracteristics[i,
@@ -105,29 +107,25 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
                 "N_friends":, # kept in check among the 100 players the observations allow
                 "N_NPCs":,
                 "N_players":,
-                "entities_info":, # array (4,11) infos of the given soldier, the best ally, the weakest player, the weakest NPC
+                "entities_info":, # array (4,11) infos of the given soldier, the attacker of the soldier, the best ally, the weakest player, the weakest NPC
             }
-            "Tile":Tile_info #keep N_entity on the tiles and Type of the tiles only
+            "Tile":Tile_info #keep Type of the tiles only
         }
         '''
         # features to keep
-        keep_col_til = list(range(2))
+        keep_col_til = list(range(1))  # "Type" from "Tile" "Discrete"
         keep_col_ent = list(range(1, 8))+list(range(9, 13))
 
         ################ extract where mask==0 #############
         # arr = arr[arr[:,0] == 6]
-        observation["Tile"]["Continuous"] = observation["Tile"][
-            "Continuous"][observation["Tile"]["Continuous"][:, 0] == 1]
         observation["Entity"]["Continuous"] = observation["Entity"][
             "Continuous"][observation["Entity"]["Continuous"][:, 0] == 1]
 
         # initialize
         observationUsefull = {"Entity": {}, "Tile": {}}
         # get info Tile
-        Tile_info = observation["Tile"]["Continuous"][:,
-                                                      keep_col_til]  # !! list
-        Tile_info = np.concatenate([Tile_info[i]
-                                    for i in range(len(Tile_info))], axis=0)
+        Tile_info = observation["Tile"]["Discrete"][:,
+                                                    keep_col_til]  # !! list
         observationUsefull["Tile"] = Tile_info
 
         #
@@ -136,14 +134,17 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
         Entity_info = observation["Entity"]["Continuous"][0, keep_col_ent]
         info_cards.append(Entity_info)
         # get info attacker
-        Attacker_ID = dict_feature_col["Entity"]["Continuous"]["Attacker_ID"][0]
+        Attacker_ID = observation["Entity"]["Continuous"][0,
+                                                          dict_feature_col["Entity"]["Continuous"]["Attacker_ID"]]
         Attacker_ID_row_index = self.get_row_index(
-            observation["Entity"]["Continuous"], Attacker_ID)
+            observation["Entity"]["Continuous"][:, dict_feature_col["Entity"]["Continuous"]["Entity_ID"]], Attacker_ID)
         Attacker_info = observation["Entity"]["Continuous"][Attacker_ID_row_index, keep_col_ent]
+        if Attacker_ID_row_index == 0:
+            Attacker_info = 0*Attacker_info
         info_cards.append(Attacker_info)
         # get info around
         N_friends, N_players, N_NPCs, BFF_idx, weakest_player_idx, weakest_NPC_idx = self.scan_soldiers_around(
-            observation, observation["Entity"]["Continuous"][0, dict_feature_col["Entity"]["Continuous"]["Populate"]])
+            observation["Entity"]["Continuous"], observation["Entity"]["Continuous"][0, dict_feature_col["Entity"]["Continuous"]["Population"]])
 
         observationUsefull["Entity"]["N_friends"] = N_friends
         observationUsefull["Entity"]["N_players"] = N_players
@@ -163,8 +164,8 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
             weakest_NPC_info = 0*weakest_NPC_info
         info_cards.append(weakest_NPC_info)
 
-        entities_infos = np.concatenate([info_cards[i]
-                                         for i in range(len(info_cards))], axis=0)
+        entities_infos = np.stack([info_cards[i]
+                                   for i in range(len(info_cards))], axis=0)
         observationUsefull["Entity"]["entities_infos"] = entities_infos
         return observationUsefull
 
@@ -181,14 +182,15 @@ class ActionUsefullToAction(ActionUsefullToAction):
         Variable:
         -action (dict): {
             "attack":{
-                'style':,
-                'targetID':,
-                'direction':
+                'style':, # (in Discrete(3))
+                'targetID':, # (in Discrete(129))
                 },
             "move":{
                 "direction":
             }
             }
+        Return:
+        ...
         '''
         styleUsefull = action["attack"]['style']  # (in Discrete(3)) even if scripted
         style = nmmo.action.Style.edges[styleUsefull]
