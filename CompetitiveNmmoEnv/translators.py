@@ -210,3 +210,12 @@ class ActionUsefullToAction(ActionUsefullToAction):
                                            nmmo.action.Target: targetID},
                     nmmo.action.Move:      {nmmo.action.Direction: direction},
                     }
+
+
+if __name__ == "__main__":
+    import timeit
+
+    N = 100000
+    duration = timeit.timeit(
+        lambda: ObservationToObservationUsefull().process(obs[1]), number=100000)
+    print('avg time to process:', duration/N)
