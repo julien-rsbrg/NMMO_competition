@@ -183,7 +183,7 @@ class ActionUsefullToAction(ActionUsefullToAction):
         -action (dict): {
             "attack":{
                 'style':, # (in Discrete(3))
-                'targetID':, # (in Discrete(129))
+                'targetID':, # (in Discrete(-1000, 129)) we have to consider NPCs
                 },
             "move":{
                 "direction":
