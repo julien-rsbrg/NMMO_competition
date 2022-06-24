@@ -97,7 +97,8 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
 
     def process(self, observation: Obs) -> Obs:
         '''
-        observation of a single soldier
+        Variable:
+        -observation of a single soldier
         return:
         -observationUsefull (dict) = {
             "Entity":{
