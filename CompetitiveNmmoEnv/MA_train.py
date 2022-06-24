@@ -15,7 +15,7 @@ from gym import spaces
 from ijcai2022nmmo import CompetitionConfig
 
 from utils import *
-
+from env import soldier_action_space, soldier_observation_space
 
 
 ### CONFIGURATION ###
@@ -28,12 +28,10 @@ do_render = True
 NUM_ITERATIONS = 100
 CHECKPOINT_ROOT = "tmp/ppo/NMMO_MA"
 
-from CompetitiveNmmoEnv.env import CompetitionNmmoMultiAgentEnv, soldier_action_space, soldier_observation_space
 class ConfigTrain(CompetitionConfig):
     RENDER = False
 class ConfigTest(CompetitionConfig):
     RENDER = do_render
-MA_ENV_CLASS = CompetitionNmmoMultiAgentEnv
 MA_ENV_NAME = "CompetitionNmmoMultiAgentEnv"
 MA_ENV_CONFIG = {"Config_class" : ConfigTrain}
 MA_ENV_CONFIG_TEST = {"Config_class" : ConfigTest}
