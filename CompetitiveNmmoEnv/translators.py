@@ -179,7 +179,16 @@ class ActionUsefullToAction(ActionUsefullToAction):
     def traduce(self, action: Action) -> Dict[type, Dict]:
         '''
         Variable:
-        -action (dict): {"attack":{style 012,targetID,direction}}
+        -action (dict): {
+            "attack":{
+                'style':,
+                'targetID':,
+                'direction':
+                },
+            "move":{
+                "direction":
+            }
+            }
         '''
         styleUsefull = action["attack"]['style']  # (in Discrete(3)) even if scripted
         style = nmmo.action.Style.edges[styleUsefull]
