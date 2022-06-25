@@ -2,7 +2,6 @@ import sys
 from ijcai2022nmmo import CompetitionConfig, TeamBasedEnv
 from ijcai2022nmmo.evaluation.team import Team
 from ijcai2022nmmo.scripted import RandomTeam, ForageTeam, CombatTeam
-from OurScriptedTeam import CombatTribrid1Team, CombatMRTeam
 
 from ray.rllib.agents.ppo import ppo
 from CompetitiveNmmoEnv.MA_train import MA_ENV_CLASS, MA_ENV_NAME, MA_ENV_CONFIG, MA_ENV_CONFIG_TEST, config

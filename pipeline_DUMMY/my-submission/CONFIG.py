@@ -82,10 +82,9 @@ config_concerning_training = {
         "framework": "torch",
         "disable_env_checking": True,
         
-        
         # === Worker & sampling settings ===
-        "num_workers" : 5,           # <!> 0 for single-machine training. Number of rollout worker actors to create for parallel sampling
-        "num_envs_per_worker": 2,
+        "num_workers" : 0,           # <!> 0 for single-machine training. Number of rollout worker actors to create for parallel sampling
+        "num_envs_per_worker": 1,
         "rollout_fragment_length": 20,   #Per-sampler batch size / Rollout worker batch size, will adjust itself so that : num_workers * num_envs_per_worker * rollout_fragment_length = k * train_batch_size
         "train_batch_size": 500,         #Batch size for training, obtained from the concatenation of rollout worker batches
         "sgd_minibatch_size": 50,  
@@ -101,7 +100,7 @@ config_concerning_training = {
         "gamma": 0.99,
         "lr": 0.0001,
         "model" : {
-            "fcnet_hiddens": [4, 4],
+            "fcnet_hiddens": [32, 32],
             "fcnet_activation": "relu",
             },
         "optimizer": {},
