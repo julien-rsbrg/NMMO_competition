@@ -5,17 +5,20 @@ from ijcai2022nmmo import Team
 from env import CompetitionNmmoMultiAgentEnv
 from CONFIG import MA_ENV_NAME, config, OurTrainer, CHECKPOINT_NAME
 from translators import translators
-
-# class RestoredFromCheckpointTeam(Team):
-#     def act(self, observations):
-#         actions = {}
-#         for player_idx, obs in observations.items():
-#             actions[player_idx] = {}
-#         return actions
+config["num_workers"] = 0
+config["num_envs_per_worker"] = 1
 
 checkpoint_path = CHECKPOINT_NAME
 agent_restored = OurTrainer(config, MA_ENV_NAME)    # config should rather be the config used for training (not a modified config) preferably for bug
 agent_restored.restore(checkpoint_path)
+
+# Define teams
+class NotMovingTeam(Team):
+    def act(self, observations):
+        actions = {}
+        for player_idx, obs in observations.items():
+            actions[player_idx] = {}
+        return actions
     
 class RestoredFromCheckpointTeam(Team):
     #Class parameters:
@@ -48,5 +51,5 @@ class RestoredFromCheckpointTeam(Team):
         return actions
 
 class Submission:
-    team_klass = RestoredFromCheckpointTeam
+    team_klass = NotMovingTeam
     init_params = {}
