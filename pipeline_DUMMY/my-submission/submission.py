@@ -51,5 +51,5 @@ class RestoredFromCheckpointTeam(Team):
         return actions
 
 class Submission:
-    team_klass = NotMovingTeam
+    team_klass = RestoredFromCheckpointTeam
     init_params = {}
