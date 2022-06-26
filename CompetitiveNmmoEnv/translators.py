@@ -107,7 +107,8 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
                 "N_friends":, # kept in check among the 100 players the observations allow
                 "N_NPCs":,
                 "N_players":,
-                "entities_info":, # array (4,11) infos of the given soldier, the attacker of the soldier, the best ally, the weakest player, the weakest NPC
+                # array (4,11) infos of the given soldier, the attacker of the soldier, the best ally, the weakest player, the weakest NPC
+                "entities_info":,
             }
             "Tile":Tile_info #keep Type of the tiles only
         }
@@ -124,9 +125,9 @@ class ObservationToObservationUsefull(ObservationToObservationUsefull):
         # initialize
         observationUsefull = {"Entity": {}, "Tile": {}}
         # get info Tile
-        Tile_info = observation["Tile"]["Discrete"][:,
+        Type_info = observation["Tile"]["Discrete"][:,
                                                     keep_col_til]  # !! list
-        observationUsefull["Tile"] = Tile_info
+        observationUsefull["Tile"] = np.reshape(Type_info, [15, 15])
 
         #
         info_cards = []
@@ -183,7 +184,8 @@ class ActionUsefullToAction(ActionUsefullToAction):
         -action (dict): {
             "attack":{
                 'style':, # (in Discrete(3))
-                'targetID':, # (in Discrete(-1000, 129)) we have to consider NPCs
+                # (in Discrete(-1000, 129)) we have to consider NPCs
+                'targetID':,
                 },
             "move":{
                 "direction":
