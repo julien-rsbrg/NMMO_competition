@@ -1,0 +1,2 @@
+nmmo==1.5.3.17a8
+https://gitlab.aicrowd.com/henryz/ijcai2022nmmo/-/archive/v0.2.14/ijcai2022nmmo-v0.2.14.tar.gz

@@ -1,0 +1,38 @@
+Pour créer une nouvelle pipeline + entrainement + test + submit:
+
+CREATION :
+- copier coller pipeline_DUMMY à côté et le renommer pipeline_X 	  (où X est le nom choisi pour la pipeline) 
+- cd pipeline_X/my_submission
+- ajouter d'éventuels fichiers.py utile au fonctionnement de l'env (comme OurScriptingAgent.py par exemple) dans pipeline_X/my-submission
+- dans env.py : définir correctement l'environment. La seule chose à améliorer est le traitement de la reward. Le reste est traité autre part.
+- dans CONFIG.py : 	dans la section ENV CONFIG (section indquée par les commentaires j'entends) modifier les gym.Spaces du soldier
+			dans TRAINING CONFIG modifier le trainer (= l'algo de RL) (laisser PPO stv train avec PPO par exemple)
+			dans MULTI AGENT CONFIG modifier si besoin (laisser comme ca pour des agents uniformes)
+- dans translators.py : définir les translateurs (les deux classes pour des agents uniformes OU mettre plusieurs classes et modifier le dictionnaire translators)
+	Les translateurs doivent faire le lien entre des espaces de NMMO et les gym.Space qui correspondent à ceux spécifiés dans CONFIG.py			
+
+
+ENTRAINEMENT : attention la config utilisée doit etre la meme que celle utilisée durant le training
+- cd pipeline_X/my_submission
+- dans CONFIG.py :	dans TRAINING CONFIG modifier NUM_ITERATIONS si besoin (laisser à 100 stv)
+			dans CONFIG modifier des paramètres d'entrainement via RLlib, notamment ceux pour les workers et les ressources (cpu&gpu)
+- python -m train
+- le truc va train et save les checkpoints dans le dossier spécifié
+- si besoin faire une copie de la version de CONFIG.py dans un dossier a coté au cas ou si ca bug lors de l'eval parce que CONFIG différente...
+
+
+EVALUATION :
+- cd pipeline_X/my_submission
+- aller chercher le dossier checkpoint intéressant (par exemple checkpoint_000002) et le placer dans my-submission/ (attention ya besoin de tout le dossier pas juste du sous fichier)
+- dans CONFIG.py section "### EVALUATION CONFIG", modifier le paramètre CHECKPOINT_NAME en le nom du sous fichier (exemple "checkpoint_000002/checkpoint-2")
+- python -m ffa_eval 		pour voir 16 de nos teams se battre, si do_render = True (oui par défaut) alors ca render et on peut observer la bataille dans le client Unity
+- python -m rollout_eval 	pour voir sa perf face a 15 autres agents scripté, on peut changer les agents utilisés dans rollout
+
+
+SUBMIT :
+- cd pipeline_X/
+- git fetch --all 		# pas trop compris c'est parce que ca submit via un gitlab sombre (pire methode de soumission jamais vu btw)
+- aller chercher le dossier checkpoint intéressant (par exemple checkpoint_000002) et le placer dans starter_kit/ (attention ya besoin de tout le dossier pas juste du sous fichier)
+- dans CONFIG.py section "### EVALUATION CONFIG", modifier le paramètre CHECKPOINT_NAME en le nom du sous fichier (exemple "checkpoint_000002/checkpoint-2")
+- python tool.py test					pour tester le submit
+- python tool.py submit "submission_name_example"	pour sub
