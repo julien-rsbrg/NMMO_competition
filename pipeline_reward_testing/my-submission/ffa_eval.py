@@ -1,7 +1,9 @@
 print("=========== Script ffa_eval running ===========") 
 print("Imports...")
+from ast import Not
 from env import RewardTeamBasedEnv
 from ijcai2022nmmo.evaluation.team import Team
+from ijcai2022nmmo.scripted import CombatTeam
 
 print("Import config...")
 from CONFIG import ConfigTest
@@ -25,9 +27,9 @@ class NotMovingTeam(Team):
         return actions
 
 class RestoredFromCheckpointTeamPrinting(RestoredFromCheckpointTeam):
-    do_print = True
+    do_print = False
 
-team_classes = 16 * [RestoredFromCheckpointTeamPrinting]
+team_classes = 8 * [CombatTeam] + 8 * [NotMovingTeam]
 teams = [Team(team_id="team"+str(nbr_team), env_config=env.config) for nbr_team, Team in enumerate(team_classes)]
 
 # Reset and get first observations
@@ -56,5 +58,6 @@ while True:
     # Render
     timestep += 1
     print("Timestep: ", timestep)
+    print(rewards_by_team[0])
     if do_render:
         env.render()
