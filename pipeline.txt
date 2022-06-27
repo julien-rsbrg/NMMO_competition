@@ -4,7 +4,8 @@ CREATION :
 - copier coller pipeline_DUMMY à côté et le renommer pipeline_X 	  (où X est le nom choisi pour la pipeline) 
 - cd pipeline_X/my_submission
 - ajouter d'éventuels fichiers.py utile au fonctionnement de l'env (comme OurScriptingAgent.py par exemple) dans pipeline_X/my-submission
-- dans env.py : définir correctement l'environment. La seule chose à améliorer est le traitement de la reward. Le reste est traité autre part.
+- dans rewarding.py : modifier la méthode de calcul pour la reward (s'inspirer de rewarding.py de pipeline_reward_testing)
+- dans env.py : éventuellement modifier .step() dans la double boucle finale si on veut rajouter d'autres composantes à la reward qui nécessite d'utiliser obs.
 - dans CONFIG.py : 	dans la section ENV CONFIG (section indquée par les commentaires j'entends) modifier les gym.Spaces du soldier
 			dans TRAINING CONFIG modifier le trainer (= l'algo de RL) (laisser PPO stv train avec PPO par exemple)
 			dans MULTI AGENT CONFIG modifier si besoin (laisser comme ca pour des agents uniformes)
