@@ -54,6 +54,7 @@ class CompetitionNmmoMultiAgentEnv(MultiAgentEnv):
                 actions_by_team[num_team] = {}
             actions_by_team[num_team][num_soldier] = action
 
+        # print('actions_by_team:,\n', actions_by_team)
         (
             observations_by_team,
             rewards_by_team,

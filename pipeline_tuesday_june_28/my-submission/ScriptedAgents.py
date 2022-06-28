@@ -113,6 +113,26 @@ class AttackMageForTranslators(Scripted):
                                                              Entity.ID)
         self.targetDist = utilsIJCAI.l1((sr, sc), (tr, tc))
 
+    def postprocess_actions(self, actions):
+        '''
+        because of an unexpected incompatibility
+        '''
+        dict_direction_to_idx = {item: i for i, item in enumerate(
+            [nmmo.action.North, nmmo.action.South, nmmo.action.East, nmmo.action.West])}
+        new_actions = {
+            nmmo.action.Attack: {
+                nmmo.action.Style: actions[nmmo.action.Attack][nmmo.action.Style].index,
+                nmmo.action.Target: int(
+                    actions[nmmo.action.Attack][nmmo.action.Target])
+            },
+            nmmo.action.Move: {
+                nmmo.action.Direction: dict_direction_to_idx[actions[nmmo.action.Move]
+                                                             [nmmo.action.Direction]]
+            }
+        }
+        print('new_actions:', new_actions)
+        return new_actions
+
     def precall(self, obs):
         '''
         should work as super.__call__(obs) minus a bug
@@ -160,29 +180,26 @@ class AttackMageForTranslators(Scripted):
 
         # movement goal is set by the RL agent through its idx_action output
         if idx_action == 0:
-            # do not move
-            self.actions[nmmo.action.Move] = {nmmo.action.Direction: (0, 0)}
-        elif idx_action == 1:
             # explore
             self.explore()
-        elif idx_action == 2:
+        elif idx_action == 1:
             # forage
             self.forage()
-        elif idx_action == 3 or idx_action == 4:
+        elif idx_action == 2 or idx_action == 3:
             # relates to attacker
             Attacker_ID = arr_of_interest[0,
                                           dict_feature_col["Entity"]["Continuous"]["Attacker_ID"]]
             Attacker_mtrx_row_index = self.get_mtrx_row_index(
                 arr_of_interest[:, dict_feature_col["Entity"]["Continuous"]["Entity_ID"]], Attacker_ID)
             Attacker_info = arr_of_interest[Attacker_mtrx_row_index, :]
-            if idx_action == 3:
+            if idx_action == 2:
                 # move to attacker
                 self.get_close(Attacker_info)
-            elif idx_action == 4:
+            elif idx_action == 3:
                 # evade attacker
                 # the same as the evade method by default
                 self.evade(Attacker_info)
-        elif idx_action in [5, 6, 7, 8, 9]:
+        elif idx_action in [4, 5, 6, 7, 8]:
             # relates to BFF, weakest ennemy player or NPC
             own_population = arr_of_interest[0,
                                              dict_feature_col["Entity"]["Continuous"]["Population"]]
@@ -191,35 +208,35 @@ class AttackMageForTranslators(Scripted):
             #     self.ob.agent, nmmo.Serialized.Entity.Population)
             _, _, _, BFF_mtrx_row_idx, weakest_ennemy_plr_mtrx_row_idx, weakest_NPC_mtrx_row_idx = self.scan_soldiers_around(
                 arr_of_interest, own_population)
-            if idx_action == 5:
+            if idx_action == 4:
                 # move to BFF
                 if BFF_mtrx_row_idx != 0:
                     BFF_info = arr_of_interest[BFF_mtrx_row_idx, :]
                     self.get_close(BFF_info)
                 else:
                     self.explore()
-            elif idx_action == 6:
+            elif idx_action == 5:
                 # move to weakest ennemy player
                 if weakest_ennemy_plr_mtrx_row_idx != 0:
                     weakest_ennemy_plr_info = arr_of_interest[weakest_ennemy_plr_mtrx_row_idx, :]
                     self.get_close(weakest_ennemy_plr_info)
                 else:
                     self.explore()
-            elif idx_action == 7:
+            elif idx_action == 6:
                 # move to weakest NPC
                 if weakest_NPC_mtrx_row_idx != 0:
                     weakest_NPC_info = arr_of_interest[weakest_NPC_mtrx_row_idx, :]
                     self.get_close(weakest_NPC_info)
                 else:
                     self.explore()
-            elif idx_action == 8:
+            elif idx_action == 7:
                 # evade weakest ennemy player
                 if weakest_ennemy_plr_mtrx_row_idx != 0:
                     weakest_ennemy_plr_info = arr_of_interest[weakest_ennemy_plr_mtrx_row_idx, :]
                     self.evade(weakest_ennemy_plr_info)
                 else:
                     self.explore()
-            elif idx_action == 9:
+            elif idx_action == 8:
                 # evade weakest NPC
                 if weakest_NPC_mtrx_row_idx != 0:
                     weakest_NPC_info = arr_of_interest[weakest_NPC_mtrx_row_idx, :]
@@ -228,5 +245,5 @@ class AttackMageForTranslators(Scripted):
                     self.explore()
 
         self.attack()
-
+        self.actions = self.postprocess_actions(self.actions)
         return self.actions

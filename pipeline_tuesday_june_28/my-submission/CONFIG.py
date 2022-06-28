@@ -39,7 +39,7 @@ soldier_observation_space = gym.spaces.Dict({
 })
 
 # action space of the individual agent ie the soldier
-soldier_action_space = gym.spaces.Discrete(10)
+soldier_action_space = gym.spaces.Discrete(9)
 
 # TRAINING CONFIG
 
