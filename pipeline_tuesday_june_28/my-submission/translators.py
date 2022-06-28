@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 import gym
 import nmmo
 from copy import deepcopy
-from CompetitiveNmmoEnv.ScriptedAgents import AttackMageForTranslators
+from ScriptedAgents import AttackMageForTranslators
 from ijcai2022nmmo.scripted import utils as utilsIJCAI
 
 
@@ -83,7 +83,7 @@ class MyObservationToObservationUsefull_v1(ObservationToObservationUsefull):
             power = lvl*2+hp-dmg
             if cand_pop == own_population:
                 N_friends += 1
-                if power > BFF["Power"]:
+                if power > BFF["Power"] and i != 0:
                     update_dic(BFF, i, power)
             elif cand_pop < 0:  # NPC
                 N_NPCs += 1
@@ -120,6 +120,7 @@ class MyObservationToObservationUsefull_v1(ObservationToObservationUsefull):
             perso_all_info, entity_all_info)
         entity_info = np.concatenate(
             [entity_info, lvl_diff, distance], axis=-1)
+        # late to assure the good shape
         if entity_idx == 0:
             entity_info = 0*entity_info
         info_cards.append(entity_info)
@@ -130,11 +131,8 @@ class MyObservationToObservationUsefull_v1(ObservationToObservationUsefull):
         -observation of a single soldier
         return:
         -observationUsefull (dict) = {
-            'perso':array with health food water direction_to_forage,
-            'attacker': array  diff_lvl health is_freezed distance direction_to_it direction_opposed_to_it,
-            'BFF': idem,
-            'weakest_ennemy_player': idem,
-            'weakest_NPC': idem,
+            'perso_info':array with health food water,
+            'other_entities_info': array health is_freezed diff_lvl distance(l1),
             'N_ennemy_players':,
             'N_NPC':,
             'N_friends':,
@@ -157,7 +155,7 @@ class MyObservationToObservationUsefull_v1(ObservationToObservationUsefull):
             "perso_info": None,
             "other_entities_info": None,
             'N_ennemy_players': None,
-            'N_NPC': None,
+            'N_NPCs': None,
             'N_friends': None,
         }
 
@@ -183,7 +181,7 @@ class MyObservationToObservationUsefull_v1(ObservationToObservationUsefull):
             observation_unmask["Entity"]["Continuous"], observation_unmask["Entity"]["Continuous"][0, dict_feature_col["Entity"]["Continuous"]["Population"]])
 
         observationUsefull["N_friends"] = N_friends
-        observationUsefull["N_players"] = N_players
+        observationUsefull["N_ennemy_players"] = N_players
         observationUsefull["N_NPCs"] = N_NPCs
 
         # if one among BFF, weakest_player, or weaker_NPC is not perceived, its info is set to a 0 matrix
@@ -226,7 +224,7 @@ class MyActionUsefullToAction_AttackAgent_v1(ActionUsefullToAction):
 
 
 def build_translators(config, idx=0, class_attack_agent=AttackMageForTranslators):
-    translators = {num_team: {num_soldier: {"obs2obsUsefull": MyObservationToObservationUsefull_v1,
+    translators = {num_team: {num_soldier: {"obs2obsUsefull": MyObservationToObservationUsefull_v1(),
                                             "actionUsefull2action": MyActionUsefullToAction_AttackAgent_v1(config, idx=idx, class_attack_agent=class_attack_agent)}
                               for num_soldier in range(8)} for num_team in range(16)}
     return translators

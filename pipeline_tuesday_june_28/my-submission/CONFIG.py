@@ -1,7 +1,7 @@
 import os
 import sys
 from typing import Dict
-from gym.spaces import Discrete, MultiDiscrete, Tuple, Box
+import gym.spaces
 from ray.rllib.agents.ppo import ppo
 from ray.rllib.agents.callbacks import DefaultCallbacks
 from ray.rllib.policy.policy import PolicySpec
@@ -30,9 +30,16 @@ MA_ENV_CONFIG_TEST = {"Config_class": ConfigTest}
 
 # ENV CONFIG
 # obs space of the individual agent ie the soldier
-soldier_observation_space = Discrete(1)
+soldier_observation_space = gym.spaces.Dict({
+    "perso_info": gym.spaces.Box(low=-1, high=100, shape=(3,)),
+    "other_entities_info": gym.spaces.Box(low=-50, high=100, shape=(4, 7)),
+    "N_ennemy_players": gym.spaces.Discrete(n_soldiers*3),
+    "N_NPC": gym.spaces.Discrete(n_soldiers*3),
+    "N_friends": gym.spaces.Discrete(n_soldiers),
+})
+
 # action space of the individual agent ie the soldier
-soldier_action_space = Discrete(3)
+soldier_action_space = gym.spaces.Discrete(10)
 
 # TRAINING CONFIG
 
@@ -97,7 +104,7 @@ multi_agent_config = {
 config_concerning_training = {
     # === General settings ===
     "framework": "tf2",
-    "disable_env_checking": True,
+    # "disable_env_checking": True,
 
     # === Worker & sampling settings ===
     # <!> 0 for single-machine training. Number of rollout worker actors to create for parallel sampling
@@ -154,7 +161,7 @@ config_concerning_training = {
     "callbacks": DefaultCallbacks,
     "simple_optimizer": True,
     "ignore_worker_failures": True,
-    "recreate_failed_workers": False,
+    # "recreate_failed_workers": False,
     "fake_sampler": False,
 
 }
