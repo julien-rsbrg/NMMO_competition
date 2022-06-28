@@ -1,3 +1,0 @@
-# Some base packages are listed in submission-runtime/requirements_base.txt.
-# Add the additional python packages that your submission needs in this file.
-torch
