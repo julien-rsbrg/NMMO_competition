@@ -74,7 +74,7 @@ class MyObservationToObservationUsefull_v0(ObservationToObservationUsefull):
 
         BFF = {"Row_index": 0, "Power": 0}
         N_friends = 0
-        for i in range(soldiers_caracteristics.shape[0]):
+        for i in range(1, soldiers_caracteristics.shape[0]):
             cand_pop = soldiers_caracteristics[i,
                                                dict_feature_col["Entity"]["Continuous"]["Population"]]
             lvl = soldiers_caracteristics[i,

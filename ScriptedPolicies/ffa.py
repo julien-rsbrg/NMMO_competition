@@ -1,7 +1,7 @@
 from ijcai2022nmmo import CompetitionConfig, TeamBasedEnv
 from ijcai2022nmmo.evaluation.team import Team
 from ijcai2022nmmo.scripted import RandomTeam, ForageTeam, CombatTeam
-from OurScriptedTeam import CombatTribrid1Team, CombatMRTeam
+from ScriptedPolicies.OurScriptedTeam import CombatTribrid1Team, CombatMRTeam
 
 # My parameters
 n_teams = 16

@@ -1,6 +1,6 @@
 from ijcai2022nmmo import CompetitionConfig, scripted, submission
-from perso_rollout import RollOut
-from OurScriptedTeam import NotMovingTeam, CombatMageTeam
+from ScriptedPolicies.OurRollout import RollOut
+from ScriptedPolicies.OurScriptedTeam import NotMovingTeam, CombatMageTeam
 import nmmo
 
 n_teams = 16

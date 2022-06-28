@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 from typing import Dict
 from gym.spaces import Discrete, MultiDiscrete, Tuple, Box
 from ray.rllib.agents.ppo import ppo
@@ -14,136 +15,152 @@ n_agents = n_teams * n_soldiers
 
 class ConfigTrain(CompetitionConfig):
     RENDER = False
+
+
 class ConfigTest(CompetitionConfig):
     RENDER = True
 
+
 MA_ENV_NAME = "CompetitionNmmoMultiAgentEnv"
-MA_ENV_CONFIG = {"Config_class" : ConfigTrain}
-MA_ENV_CONFIG_TEST = {"Config_class" : ConfigTest}
+MA_ENV_CONFIG = {"Config_class": ConfigTrain}
+MA_ENV_CONFIG_TEST = {"Config_class": ConfigTest}
 
 ### ======================== WHAT TO CHANGE IS BELOW ======================== ###
 
 
-    
-### ENV CONFIG
-soldier_observation_space = Discrete(1)                 # obs space of the individual agent ie the soldier
-soldier_action_space = Discrete(3)                      # action space of the individual agent ie the soldier
+# ENV CONFIG
+# obs space of the individual agent ie the soldier
+soldier_observation_space = Discrete(1)
+# action space of the individual agent ie the soldier
+soldier_action_space = Discrete(5)
 
-### TRAINING CONFIG
+# TRAINING CONFIG
+
+
 class OurTrainer(ppo.PPOTrainer):
     pass
-config_concerning_trainer = ppo.DEFAULT_CONFIG.copy()  
+
+
+config_concerning_trainer = ppo.DEFAULT_CONFIG.copy()
 
 RUN_WITH_TUNE = False                                   # no tuning for now
-NUM_ITERATIONS = 100                                    # number of training iterations .train()
-CHECKPOINT_ROOT = "tmp/ppo/NMMO_MA"                  # path to save checkpoints, such that checkpoint folder is .../pipeline_X/starter_kit/my_submission/+CHECKPOINT_ROOT
+# number of training iterations .train()
+NUM_ITERATIONS = 100
+# path to save checkpoints, such that checkpoint folder is .../pipeline_X/starter_kit/my_submission/+CHECKPOINT_ROOT
+CHECKPOINT_ROOT = "tmp/ppo/NMMO_MA"
 
-### EVALUATION CONFIG
-CHECKPOINT_NAME = "checkpoint_000002/checkpoint-2"      # name always of the form "checkpoint_?/checkpoint-?"   such that the checkpoint is at .../my_submission/checkpoint_?/checkpoint-?
+# EVALUATION CONFIG
+# name always of the form "checkpoint_?/checkpoint-?"   such that the checkpoint is at .../my_submission/checkpoint_?/checkpoint-?
+CHECKPOINT_NAME = "checkpoint_000002/checkpoint-3"
 
 ### MULTI AGENT CONFIG ###
-def policy_map_fn(agent_id: str, _episode=None, _worker=None, **_kwargs) -> str:    # maps agent_id to policy_id
+
+
+# maps agent_id to policy_id
+def policy_map_fn(agent_id: str, _episode=None, _worker=None, **_kwargs) -> str:
     """
     Maps agent_id to policy_id
     """
     return "soldier_policy"
 
-def get_multiagent_policies() -> Dict[str,PolicySpec]:
-    policies: Dict[str,PolicySpec] = {}  # policy_id to policy_spec
 
-    #Policy of the VirtualAgent "prisoner"
+def get_multiagent_policies() -> Dict[str, PolicySpec]:
+    policies: Dict[str, PolicySpec] = {}  # policy_id to policy_spec
+
+    # Policy of the VirtualAgent "prisoner"
     policies['soldier_policy'] = PolicySpec(
-                policy_class=None, # use default in trainer, or could be YourHighLevelPolicy
-                observation_space=soldier_observation_space,
-                action_space=soldier_action_space,
-                config={}
+        policy_class=None,  # use default in trainer, or could be YourHighLevelPolicy
+        observation_space=soldier_observation_space,
+        action_space=soldier_action_space,
+        config={}
     )
     return policies
+
 
 policies = get_multiagent_policies()
 policies_to_train = list(policies.keys())
 
 multi_agent_config = {
-                        "policies": policies,
-                        "policy_mapping_fn": policy_map_fn,
-                        "policies_to_train": policies_to_train,
+    "policies": policies,
+    "policy_mapping_fn": policy_map_fn,
+    "policies_to_train": policies_to_train,
 
-                        "count_steps_by": "env_steps",
-                        "observation_fn": None,
-                        "replay_mode": "independent",
-                        "policy_map_cache": None,
-                        "policy_map_capacity": 200,
-                        "count_steps_by": "env_steps",
-                    }
+    "count_steps_by": "env_steps",
+    "observation_fn": None,
+    "replay_mode": "independent",
+    "policy_map_cache": None,
+    "policy_map_capacity": 200,
+    "count_steps_by": "env_steps",
+}
 
 ### CONFIG ###
 config_concerning_training = {
-        # === General settings ===
-        "framework": "torch",
-        "disable_env_checking": True,
-        
-        # === Worker & sampling settings ===
-        "num_workers" : 0,           # <!> 0 for single-machine training. Number of rollout worker actors to create for parallel sampling
-        "num_envs_per_worker": 1,
-        "rollout_fragment_length": 20,   #Per-sampler batch size / Rollout worker batch size, will adjust itself so that : num_workers * num_envs_per_worker * rollout_fragment_length = k * train_batch_size
-        "train_batch_size": 500,         #Batch size for training, obtained from the concatenation of rollout worker batches
-        "sgd_minibatch_size": 50,  
-        "batch_mode": "complete_episodes",  # "truncate_episodes" or "complete_episodes"
-        "timesteps_per_iteration": 0,       #minimal timesteps
-        
-        # === Resource Settings ===
-        "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
-        "num_cpus_per_worker": 2,
-        "num_gpus_per_worker": 0,
+    # === General settings ===
+    "framework": "tf2",
+    # "disable_env_checking": True,
 
-        # === Settings for the Trainer process ===
-        "gamma": 0.99,
-        "lr": 0.0001,
-        "model" : {
-            "fcnet_hiddens": [32, 32],
-            "fcnet_activation": "relu",
-            },
-        "optimizer": {},
-        
-        # === Settings for the Env ===
-        "horizon" : 30,
-        "env": MA_ENV_NAME,
-        "env_config": MA_ENV_CONFIG,
-            # "observation_space": None,
-            # "action_space": None,
-        "render_env": False,        #render during training...
-        "clip_rewards": None,
-        "normalize_actions": True,
-                
+    # === Worker & sampling settings ===
+    # <!> 0 for single-machine training. Number of rollout worker actors to create for parallel sampling
+    "num_workers": 0,
+    "num_envs_per_worker": 1,
+    "rollout_fragment_length": 20,  # Per-sampler batch size / Rollout worker batch size, will adjust itself so that : num_workers * num_envs_per_worker * rollout_fragment_length = k * train_batch_size
+    # Batch size for training, obtained from the concatenation of rollout worker batches
+    "train_batch_size": 500,
+    "sgd_minibatch_size": 50,
+    "batch_mode": "complete_episodes",  # "truncate_episodes" or "complete_episodes"
+    "timesteps_per_iteration": 0,  # minimal timesteps
 
-        # === Multi agent === defines (training?) policies and virtual_agent_id to policy_id mapping.
-        "multiagent": multi_agent_config,
-        
-        # === Exploration settings ===
-        "explore": True,
-        
-        # === Evaluation ===  
-        "evaluation_num_workers": 0,
-        "evaluation_config": MA_ENV_CONFIG_TEST,
-        "evaluation_interval" : 5,
-        "evaluation_duration": 1,
-        "evaluation_duration_unit": "episodes",
-        "custom_eval_function": None,
-        
-        # === Debug Settings ===
-        "log_level": "WARN",
-        "callbacks": DefaultCallbacks,
-        "simple_optimizer": True,
-        "ignore_worker_failures": True,
-        "recreate_failed_workers": False,
-        "fake_sampler": False,
+    # === Resource Settings ===
+    "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
+    "num_cpus_per_worker": 2,
+    "num_gpus_per_worker": 1,
 
-    }
+    # === Settings for the Trainer process ===
+    "gamma": 0.99,
+    "lr": 0.0001,
+    "model": {
+        "fcnet_hiddens": [32, 32],
+        "fcnet_activation": "relu",
+    },
+    "optimizer": {},
+
+    # === Settings for the Env ===
+    "horizon": 30,
+    "env": MA_ENV_NAME,
+    "env_config": MA_ENV_CONFIG,
+    # "observation_space": None,
+    # "action_space": None,
+    "render_env": False,  # render during training...
+    "clip_rewards": None,
+    "normalize_actions": True,
+
+
+    # === Multi agent === defines (training?) policies and virtual_agent_id to policy_id mapping.
+    "multiagent": multi_agent_config,
+
+    # === Exploration settings ===
+    "explore": True,
+
+    # === Evaluation ===
+    "evaluation_num_workers": 0,
+    "evaluation_config": MA_ENV_CONFIG_TEST,
+    "evaluation_interval": 5,
+    "evaluation_duration": 1,
+    "evaluation_duration_unit": "episodes",
+    "custom_eval_function": None,
+
+    # === Debug Settings ===
+    "log_level": "WARN",
+    "callbacks": DefaultCallbacks,
+    "simple_optimizer": True,
+    "ignore_worker_failures": True,
+    # "recreate_failed_workers": False,
+    "fake_sampler": False,
+
+}
 
 config = config_concerning_trainer.copy()
 config.update(config_concerning_training)
-
-
 
 
 ### ================================================================= ###
