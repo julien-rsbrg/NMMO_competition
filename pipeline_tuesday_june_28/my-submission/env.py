@@ -33,6 +33,7 @@ class CompetitionNmmoMultiAgentEnv(MultiAgentEnv):
 
     def reset(self, seed=0) -> dict[AgentID, Obs]:
         observations_by_team = self.team_based_env.reset()
+        self.observations_by_team = observations_by_team
         observations_usefull = {}
         for num_team, observations_by_soldiers in observations_by_team.items():
             for num_soldier, observation in observations_by_soldiers.items():
@@ -48,7 +49,7 @@ class CompetitionNmmoMultiAgentEnv(MultiAgentEnv):
         for agent_id, actionUsefull in actions.items():
             num_team, num_soldier = self.id_to_numbers(agent_id)
             action = self.translators[num_team][num_soldier]["actionUsefull2action"].traduce(
-                actionUsefull)
+                self.observations_by_team[num_team][num_soldier], actionUsefull)
             if num_team not in actions_by_team:
                 actions_by_team[num_team] = {}
             actions_by_team[num_team][num_soldier] = action
@@ -59,6 +60,8 @@ class CompetitionNmmoMultiAgentEnv(MultiAgentEnv):
             dones_by_team,
             infos_by_team,
         ) = self.team_based_env.step(actions_by_team)
+
+        self.observations_by_team = observations_by_team
 
         observations_usefull = {}
         rewards = {}  # !!

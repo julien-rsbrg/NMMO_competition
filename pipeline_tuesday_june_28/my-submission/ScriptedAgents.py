@@ -1,5 +1,6 @@
 from ijcai2022nmmo.scripted.baselines import Scripted
 import nmmo
+from nmmo import scripting
 from ijcai2022nmmo.scripted import move
 from ijcai2022nmmo.scripted import utils as utilsIJCAI
 from copy import deepcopy
@@ -99,9 +100,9 @@ class AttackMageForTranslators(Scripted):
         sc = nmmo.scripting.Observation.attribute(self.ob.agent, Entity.C)
         # this method could be broaden for our purpose
 
-        tr = arr_entity_to_evade[0, dict_feature_col["Entity"]
+        tr = arr_entity_to_evade[dict_feature_col["Entity"]
                                  ['Continuous']['Row_index']]
-        tc = arr_entity_to_evade[0, dict_feature_col["Entity"]
+        tc = arr_entity_to_evade[dict_feature_col["Entity"]
                                  ['Continuous']['Column_index']]
         # or
         # tr = nmmo.scripting.Observation.attribute(arr_entity_to_evade, Entity.R)
@@ -112,8 +113,38 @@ class AttackMageForTranslators(Scripted):
                                                              Entity.ID)
         self.targetDist = utilsIJCAI.l1((sr, sc), (tr, tc))
 
+    def precall(self, obs):
+        '''
+        should work as super.__call__(obs) minus a bug
+        Process observations and return actions
+
+        Args:
+           obs: An observation object from the environment. Unpack with scripting.Observation
+        '''
+        self.actions = {}
+
+        self.ob = scripting.Observation(self.config, obs)
+        agent = self.ob.agent
+
+        self.food = scripting.Observation.attribute(
+            agent, nmmo.Serialized.Entity.Food)
+        self.water = scripting.Observation.attribute(
+            agent, nmmo.Serialized.Entity.Water)
+
+        if self.food > self.food_max:
+            self.food_max = self.food
+        if self.water > self.water_max:
+            self.water_max = self.water
+
+        if self.spawnR is None:
+            self.spawnR = scripting.Observation.attribute(
+                agent, nmmo.Serialized.Entity.R)
+        if self.spawnC is None:
+            self.spawnC = scripting.Observation.attribute(
+                agent, nmmo.Serialized.Entity.C)
+
     def __call__(self, obs, idx_action):
-        super.__call__(obs)
+        self.precall(obs)
 
         # begin to handle attack
         self.scan_agents()
@@ -124,7 +155,7 @@ class AttackMageForTranslators(Scripted):
 
         # get rid of the masked observations
         unmasked_obs = deepcopy(obs)
-        unmasked_obs["Entity"]["Continuous"] = unmasked_obs["Entity"][
+        arr_of_interest = unmasked_obs["Entity"][
             "Continuous"][obs["Entity"]["Continuous"][:, 0] == 1]
 
         # movement goal is set by the RL agent through its idx_action output
@@ -139,11 +170,11 @@ class AttackMageForTranslators(Scripted):
             self.forage()
         elif idx_action == 3 or idx_action == 4:
             # relates to attacker
-            Attacker_ID = unmasked_obs["Entity"]["Continuous"][0,
-                                                               dict_feature_col["Entity"]["Continuous"]["Attacker_ID"]]
+            Attacker_ID = arr_of_interest[0,
+                                          dict_feature_col["Entity"]["Continuous"]["Attacker_ID"]]
             Attacker_mtrx_row_index = self.get_mtrx_row_index(
-                unmasked_obs["Entity"]["Continuous"][:, dict_feature_col["Entity"]["Continuous"]["Entity_ID"]], Attacker_ID)
-            Attacker_info = unmasked_obs["Entity"]["Continuous"][Attacker_mtrx_row_index, :]
+                arr_of_interest[:, dict_feature_col["Entity"]["Continuous"]["Entity_ID"]], Attacker_ID)
+            Attacker_info = arr_of_interest[Attacker_mtrx_row_index, :]
             if idx_action == 3:
                 # move to attacker
                 self.get_close(Attacker_info)
@@ -153,45 +184,45 @@ class AttackMageForTranslators(Scripted):
                 self.evade(Attacker_info)
         elif idx_action in [5, 6, 7, 8, 9]:
             # relates to BFF, weakest ennemy player or NPC
-            own_population = unmasked_obs[0,
-                                          dict_feature_col["Entity"]["Continuous"]["Population"]]
+            own_population = arr_of_interest[0,
+                                             dict_feature_col["Entity"]["Continuous"]["Population"]]
             # or
             # own_population = nmmo.scripting.Observation.attribute(
             #     self.ob.agent, nmmo.Serialized.Entity.Population)
             _, _, _, BFF_mtrx_row_idx, weakest_ennemy_plr_mtrx_row_idx, weakest_NPC_mtrx_row_idx = self.scan_soldiers_around(
-                unmasked_obs, own_population)
+                arr_of_interest, own_population)
             if idx_action == 5:
                 # move to BFF
                 if BFF_mtrx_row_idx != 0:
-                    BFF_info = unmasked_obs[BFF_mtrx_row_idx, :]
+                    BFF_info = arr_of_interest[BFF_mtrx_row_idx, :]
                     self.get_close(BFF_info)
                 else:
                     self.explore()
             elif idx_action == 6:
                 # move to weakest ennemy player
                 if weakest_ennemy_plr_mtrx_row_idx != 0:
-                    weakest_ennemy_plr_info = unmasked_obs[weakest_ennemy_plr_mtrx_row_idx, :]
+                    weakest_ennemy_plr_info = arr_of_interest[weakest_ennemy_plr_mtrx_row_idx, :]
                     self.get_close(weakest_ennemy_plr_info)
                 else:
                     self.explore()
             elif idx_action == 7:
                 # move to weakest NPC
                 if weakest_NPC_mtrx_row_idx != 0:
-                    weakest_NPC_info = unmasked_obs[weakest_NPC_mtrx_row_idx, :]
+                    weakest_NPC_info = arr_of_interest[weakest_NPC_mtrx_row_idx, :]
                     self.get_close(weakest_NPC_info)
                 else:
                     self.explore()
             elif idx_action == 8:
                 # evade weakest ennemy player
                 if weakest_ennemy_plr_mtrx_row_idx != 0:
-                    weakest_ennemy_plr_info = unmasked_obs[weakest_ennemy_plr_mtrx_row_idx, :]
+                    weakest_ennemy_plr_info = arr_of_interest[weakest_ennemy_plr_mtrx_row_idx, :]
                     self.evade(weakest_ennemy_plr_info)
                 else:
                     self.explore()
             elif idx_action == 9:
                 # evade weakest NPC
                 if weakest_NPC_mtrx_row_idx != 0:
-                    weakest_NPC_info = unmasked_obs[weakest_NPC_mtrx_row_idx, :]
+                    weakest_NPC_info = arr_of_interest[weakest_NPC_mtrx_row_idx, :]
                     self.evade(weakest_NPC_info)
                 else:
                     self.explore()

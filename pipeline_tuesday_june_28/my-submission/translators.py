@@ -180,9 +180,9 @@ class MyObservationToObservationUsefull_v1(ObservationToObservationUsefull):
         N_friends, N_players, N_NPCs, BFF_idx, weakest_player_idx, weakest_NPC_idx = self.scan_soldiers_around(
             observation_unmask["Entity"]["Continuous"], observation_unmask["Entity"]["Continuous"][0, dict_feature_col["Entity"]["Continuous"]["Population"]])
 
-        observationUsefull["N_friends"] = N_friends
-        observationUsefull["N_ennemy_players"] = N_players
-        observationUsefull["N_NPCs"] = N_NPCs
+        observationUsefull["N_friends"] = np.array([N_friends])
+        observationUsefull["N_ennemy_players"] = np.array([N_players])
+        observationUsefull["N_NPCs"] = np.array([N_NPCs])
 
         # if one among BFF, weakest_player, or weaker_NPC is not perceived, its info is set to a 0 matrix
         self.preprocess_other_entity(

@@ -31,11 +31,11 @@ MA_ENV_CONFIG_TEST = {"Config_class": ConfigTest}
 # ENV CONFIG
 # obs space of the individual agent ie the soldier
 soldier_observation_space = gym.spaces.Dict({
-    "perso_info": gym.spaces.Box(low=-1, high=100, shape=(3,)),
-    "other_entities_info": gym.spaces.Box(low=-50, high=100, shape=(4, 7)),
-    "N_ennemy_players": gym.spaces.Discrete(n_soldiers*3),
-    "N_NPC": gym.spaces.Discrete(n_soldiers*3),
-    "N_friends": gym.spaces.Discrete(n_soldiers),
+    "perso_info": gym.spaces.Box(low=-40, high=500, shape=(3,)),
+    "other_entities_info": gym.spaces.Box(low=-500, high=500, shape=(4, 7)),
+    "N_ennemy_players": gym.spaces.Box(low=-1, high=n_soldiers*3, shape=(1,)),
+    "N_NPCs": gym.spaces.Box(low=-1, high=n_soldiers*3, shape=(1,)),
+    "N_friends": gym.spaces.Box(low=-1, high=n_soldiers*3, shape=(1,)),
 })
 
 # action space of the individual agent ie the soldier
@@ -135,8 +135,8 @@ config_concerning_training = {
     "horizon": 30,
     "env": MA_ENV_NAME,
     "env_config": MA_ENV_CONFIG,
-    # "observation_space": None,
-    # "action_space": None,
+    "observation_space": soldier_observation_space,
+    "action_space": soldier_action_space,
     "render_env": False,  # render during training...
     "clip_rewards": None,
     "normalize_actions": True,
