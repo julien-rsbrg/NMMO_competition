@@ -33,7 +33,7 @@ class AttackMageForTranslators(Scripted):
     def get_mtrx_row_index(self, list, ID):
         for i, cand in enumerate(list):
             if cand == ID:
-                print(i)
+                # print(i)
                 return i
         return 0
 
@@ -117,21 +117,41 @@ class AttackMageForTranslators(Scripted):
         '''
         because of an unexpected incompatibility
         '''
+        # print('actions init:\n', actions)
         dict_direction_to_idx = {item: i for i, item in enumerate(
             [nmmo.action.North, nmmo.action.South, nmmo.action.East, nmmo.action.West])}
-        new_actions = {
-            nmmo.action.Attack: {
-                nmmo.action.Style: actions[nmmo.action.Attack][nmmo.action.Style].index,
-                nmmo.action.Target: int(
-                    actions[nmmo.action.Attack][nmmo.action.Target])
-            },
-            nmmo.action.Move: {
-                nmmo.action.Direction: dict_direction_to_idx[actions[nmmo.action.Move]
-                                                             [nmmo.action.Direction]]
+
+        targets = self.targets
+        if nmmo.action.Attack in actions.keys():
+            new_actions = {
+                nmmo.action.Attack: {
+                    nmmo.action.Style: actions[nmmo.action.Attack][nmmo.action.Style].index,
+                    nmmo.action.Target: targets.index(
+                        actions[nmmo.action.Attack][nmmo.action.Target])
+                },
+                nmmo.action.Move: {
+                    nmmo.action.Direction: dict_direction_to_idx[actions[nmmo.action.Move]
+                                                                 [nmmo.action.Direction]]
+                }
             }
-        }
-        print('new_actions:', new_actions)
+        else:
+            new_actions = {
+                nmmo.action.Move: {
+                    nmmo.action.Direction: dict_direction_to_idx[actions[nmmo.action.Move]
+                                                                 [nmmo.action.Direction]]
+                }
+            }
+        # print('new_actions:\n', new_actions)
         return new_actions
+
+    # def postprocess_actions(self, actions):
+    #     for atn, args in actions.items():
+    #         for arg, val in args.items():
+    #             if len(arg.edges) > 0:
+    #                 actions[atn][arg] = arg.edges.index(val)
+    #             else:
+    #                 targets = self.targets
+    #                 actions[atn][arg] = targets.index(val)
 
     def precall(self, obs):
         '''
@@ -179,6 +199,7 @@ class AttackMageForTranslators(Scripted):
             "Continuous"][obs["Entity"]["Continuous"][:, 0] == 1]
 
         # movement goal is set by the RL agent through its idx_action output
+        # print('idx_action:\n', idx_action)
         if idx_action == 0:
             # explore
             self.explore()

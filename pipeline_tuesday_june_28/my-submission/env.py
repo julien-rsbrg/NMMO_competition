@@ -48,20 +48,23 @@ class CompetitionNmmoMultiAgentEnv(MultiAgentEnv):
         actions_by_team = {}
         for agent_id, actionUsefull in actions.items():
             num_team, num_soldier = self.id_to_numbers(agent_id)
+            print('tranlate', end='.....')
             action = self.translators[num_team][num_soldier]["actionUsefull2action"].traduce(
                 self.observations_by_team[num_team][num_soldier], actionUsefull)
+            print('done translation')
             if num_team not in actions_by_team:
                 actions_by_team[num_team] = {}
             actions_by_team[num_team][num_soldier] = action
 
         # print('actions_by_team:,\n', actions_by_team)
+        print("take actions in env", end='.....')
         (
             observations_by_team,
             rewards_by_team,
             dones_by_team,
             infos_by_team,
         ) = self.team_based_env.step(actions_by_team)
-
+        print('done taking actions into account')
         self.observations_by_team = observations_by_team
 
         observations_usefull = {}
