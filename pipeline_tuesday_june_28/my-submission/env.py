@@ -30,8 +30,14 @@ class CompetitionNmmoMultiAgentEnv(MultiAgentEnv):
         # Define spaces
         self.observation_space = soldier_observation_space
         self.action_space = soldier_action_space
+        
+        #Debugging
+        self.timestep = 0
+        self.episodes = 0
 
     def reset(self, seed=0) -> dict[AgentID, Obs]:
+        self.episodes += 1
+        
         observations_by_team = self.team_based_env.reset()
         self.observations_by_team = observations_by_team
         observations_usefull = {}
@@ -44,27 +50,25 @@ class CompetitionNmmoMultiAgentEnv(MultiAgentEnv):
         return observations_usefull
 
     def step(self, actions: dict[AgentID, Action]) -> typing.Tuple[dict[AgentID, Obs], dict[AgentID, float], dict[AgentID, bool], dict[AgentID, dict]]:
-
+        print(f"Episode {self.episodes} - Step {self.timestep} ", end = "\r")
+        self.timestep += 1
+        
         actions_by_team = {}
         for agent_id, actionUsefull in actions.items():
             num_team, num_soldier = self.id_to_numbers(agent_id)
-            print('tranlate', end='.....')
             action = self.translators[num_team][num_soldier]["actionUsefull2action"].traduce(
                 self.observations_by_team[num_team][num_soldier], actionUsefull)
-            print('done translation')
             if num_team not in actions_by_team:
                 actions_by_team[num_team] = {}
             actions_by_team[num_team][num_soldier] = action
 
         # print('actions_by_team:,\n', actions_by_team)
-        print("take actions in env", end='.....')
         (
             observations_by_team,
             rewards_by_team,
             dones_by_team,
             infos_by_team,
         ) = self.team_based_env.step(actions_by_team)
-        print('done taking actions into account')
         self.observations_by_team = observations_by_team
 
         observations_usefull = {}
