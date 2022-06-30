@@ -1,0 +1,5 @@
+fire==0.4.0
+termcolor==1.1.0
+pipreqs==0.4.11
+art==5.5
+aicrowd-cli
