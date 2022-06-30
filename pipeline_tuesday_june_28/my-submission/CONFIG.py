@@ -58,7 +58,7 @@ CHECKPOINT_ROOT = "tmp/ppo/NMMO_MA"
 
 # EVALUATION CONFIG
 # name always of the form "checkpoint_?/checkpoint-?"   such that the checkpoint is at .../my_submission/checkpoint_?/checkpoint-?
-CHECKPOINT_NAME = "checkpoint_000003/checkpoint-3"
+CHECKPOINT_NAME = "checkpoint_000084/checkpoint-84"
 
 ### MULTI AGENT CONFIG ###
 
@@ -108,18 +108,18 @@ config_concerning_training = {
 
     # === Worker & sampling settings ===
     # <!> 0 for single-machine training. Number of rollout worker actors to create for parallel sampling
-    "num_workers": 0,
-    "num_envs_per_worker": 1,
-    "rollout_fragment_length": 10,  # Per-sampler batch size / Rollout worker batch size, will adjust itself so that : num_workers * num_envs_per_worker * rollout_fragment_length = k * train_batch_size
+    "num_workers": 4,
+    "num_envs_per_worker": 2,
+    "rollout_fragment_length": 100,  # Per-sampler batch size / Rollout worker batch size, will adjust itself so that : num_workers * num_envs_per_worker * rollout_fragment_length = k * train_batch_size
     # Batch size for training, obtained from the concatenation of rollout worker batches
-    "train_batch_size": 50,
-    "sgd_minibatch_size": 25,
+    "train_batch_size": 4096,
+    "sgd_minibatch_size": 128,
     "batch_mode": "truncate_episodes",  # "truncate_episodes" or "complete_episodes"
     "timesteps_per_iteration": 0,  # minimal timesteps
 
     # === Resource Settings ===
     "num_gpus": int(os.environ.get("RLLIB_NUM_GPUS", "0")),
-    "num_cpus_per_worker": 2,
+    "num_cpus_per_worker": 3,
     "num_gpus_per_worker": 0,
 
     # === Settings for the Trainer process ===
@@ -132,7 +132,7 @@ config_concerning_training = {
     "optimizer": {},
 
     # === Settings for the Env ===
-    "horizon": 30,
+    "horizon": 400,
     "env": MA_ENV_NAME,
     "env_config": MA_ENV_CONFIG,
     "observation_space": soldier_observation_space,
@@ -149,7 +149,7 @@ config_concerning_training = {
     "explore": True,
 
     # === Evaluation ===
-    "evaluation_num_workers": 0,
+    "evaluation_num_workers": 8,
     "evaluation_config": MA_ENV_CONFIG_TEST,
     "evaluation_interval": 5,
     "evaluation_duration": 1,

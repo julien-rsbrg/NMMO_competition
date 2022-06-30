@@ -2,7 +2,7 @@ Pour créer une nouvelle pipeline + entrainement + test + submit:
 
 CREATION :
 - copier coller pipeline_DUMMY à côté et le renommer pipeline_X 	  (où X est le nom choisi pour la pipeline) 
-- cd pipeline_X/my_submission
+- cd pipeline_X/my-submission
 - ajouter d'éventuels fichiers.py utile au fonctionnement de l'env (comme OurScriptingAgent.py par exemple) dans pipeline_X/my-submission
 - dans rewarding.py : modifier la méthode de calcul pour la reward (s'inspirer de rewarding.py de pipeline_reward_testing)
 - dans env.py : éventuellement modifier .step() dans la double boucle finale si on veut rajouter d'autres composantes à la reward qui nécessite d'utiliser obs.
@@ -14,7 +14,7 @@ CREATION :
 
 
 ENTRAINEMENT : attention la config utilisée doit etre la meme que celle utilisée durant le training
-- cd pipeline_X/my_submission
+- cd pipeline_X/my-submission
 - dans CONFIG.py :	dans TRAINING CONFIG modifier NUM_ITERATIONS si besoin (laisser à 100 stv)
 			dans CONFIG modifier des paramètres d'entrainement via RLlib, notamment ceux pour les workers et les ressources (cpu&gpu)
 - python -m train
@@ -23,7 +23,7 @@ ENTRAINEMENT : attention la config utilisée doit etre la meme que celle utilis�
 
 
 EVALUATION :
-- cd pipeline_X/my_submission
+- cd pipeline_X/my-submission
 - aller chercher le dossier checkpoint intéressant (par exemple checkpoint_000002) et le placer dans my-submission/ (attention ya besoin de tout le dossier pas juste du sous fichier)
 - dans CONFIG.py section "### EVALUATION CONFIG", modifier le paramètre CHECKPOINT_NAME en le nom du sous fichier (exemple "checkpoint_000002/checkpoint-2")
 - python -m ffa_eval 		pour voir 16 de nos teams se battre, si do_render = True (oui par défaut) alors ca render et on peut observer la bataille dans le client Unity

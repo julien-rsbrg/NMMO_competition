@@ -3,7 +3,7 @@ from nmmo.io import action
 from ijcai2022nmmo import Team
 
 from env import CompetitionNmmoMultiAgentEnv
-from CONFIG import MA_ENV_NAME, config, OurTrainer, CHECKPOINT_NAME
+from CONFIG import MA_ENV_NAME, config, OurTrainer, CHECKPOINT_NAME, ConfigTrain
 from translators import build_translators
 config["num_workers"] = 0
 config["num_envs_per_worker"] = 1
@@ -33,7 +33,7 @@ class RestoredFromCheckpointTeam(Team):
     MA_ENV_NAME = "CompetitionNmmoMultiAgentEnv"
     # the function that maps the soldier id to the policy id.
     policy_mapping_fn = config["multiagent"]["policy_mapping_fn"]
-    translators = translators
+    translators = build_translators(config=ConfigTrain())
     do_print = False
     agent = agent_restored
 
@@ -49,7 +49,7 @@ class RestoredFromCheckpointTeam(Team):
             actionUsefull = self.agent.compute_action(
                 observation_usefull, policy_id=self.policy_mapping_fn(player_idx))
             actions[player_idx] = actionUsefull2action.traduce(
-                actionUsefull, observation_soldier=observation_soldier)
+                observation=observation_soldier, action=actionUsefull)
 
             if self.do_print:
                 print("Observation soldier:", observation_soldier.keys())
