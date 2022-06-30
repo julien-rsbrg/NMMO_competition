@@ -23,19 +23,22 @@ env = nmmo.Env(CompetitionConfig())
 # print(obs_processed)
 
 print("-------test actions-------")
-TeamBasedEnv = RewardTeamBasedEnv(
-    config=CompetitionConfig())
-obs = TeamBasedEnv.reset()
+# TeamBasedEnv = RewardTeamBasedEnv(
+#     config=CompetitionConfig())
+# obs = TeamBasedEnv.reset()
 
 print(nmmo.action.Mage.index)
-action = {
-    nmmo.action.Attack: {
-        nmmo.action.Style: nmmo.action.Mage.index,
-        nmmo.action.Target: 1},
-    nmmo.action.Move: {
-        nmmo.action.Direction: nmmo.action.North.delta}
-}
-actions = {team_id: {agent_id: action for agent_id in range(
-    8)} for team_id in range(16)}
-# print(actions)
-TeamBasedEnv.step(actions)
+
+# action = {
+#     nmmo.action.Attack: {
+#         nmmo.action.Style: nmmo.action.Mage.index,
+#         nmmo.action.Target: 1},
+#     nmmo.action.Move: {
+#         nmmo.action.Direction: nmmo.action.North.delta}
+# }
+# actions = {team_id: {agent_id: action for agent_id in range(
+#     8)} for team_id in range(16)}
+# # print(actions)
+# TeamBasedEnv.step(actions)
+
+

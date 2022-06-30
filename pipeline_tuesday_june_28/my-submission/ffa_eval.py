@@ -1,13 +1,13 @@
-print("=========== Script ffa_eval running ===========") 
-print("Imports...")
-from ast import Not
-from env import RewardTeamBasedEnv
-from ijcai2022nmmo.evaluation.team import Team
+from submission import RestoredFromCheckpointTeam
+from CONFIG import ConfigTest
 from ijcai2022nmmo.scripted import CombatTeam
+from ijcai2022nmmo.evaluation.team import Team
+from env import RewardTeamBasedEnv
+from ast import Not
+print("=========== Script ffa_eval running ===========")
+print("Imports...")
 
 print("Import config...")
-from CONFIG import ConfigTest
-from submission import RestoredFromCheckpointTeam
 
 # My parameters
 n_teams = 16
@@ -26,11 +26,14 @@ class NotMovingTeam(Team):
             actions[player_idx] = {}
         return actions
 
+
 class RestoredFromCheckpointTeamPrinting(RestoredFromCheckpointTeam):
     do_print = False
 
-team_classes = 8 * [CombatTeam] + 8 * [NotMovingTeam]
-teams = [Team(team_id="team"+str(nbr_team), env_config=env.config) for nbr_team, Team in enumerate(team_classes)]
+
+team_classes = 8 * [CombatTeam] + 8 * [RestoredFromCheckpointTeam]
+teams = [Team(team_id="team"+str(nbr_team), env_config=env.config)
+         for nbr_team, Team in enumerate(team_classes)]
 
 # Reset and get first observations
 observations_by_team = env.reset()

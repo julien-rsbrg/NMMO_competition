@@ -128,16 +128,16 @@ class AttackMageForTranslators(Scripted):
             "Continuous"][obs["Entity"]["Continuous"][:, 0] == 1]
 
         # movement goal is set by the RL agent through its idx_action output
-        if idx_action == -1:
+        if idx_action == 0:
             # do not move
             self.actions[nmmo.action.Move] = {nmmo.action.Direction: (0, 0)}
-        elif idx_action == 0:
+        elif idx_action == 1:
             # explore
             self.explore()
-        elif idx_action == 1:
+        elif idx_action == 2:
             # forage
             self.forage()
-        elif idx_action == 3 or idx_action == -2:
+        elif idx_action == 3 or idx_action == 4:
             # relates to attacker
             Attacker_ID = unmasked_obs["Entity"]["Continuous"][0,
                                                                dict_feature_col["Entity"]["Continuous"]["Attacker_ID"]]
@@ -146,12 +146,12 @@ class AttackMageForTranslators(Scripted):
             Attacker_info = unmasked_obs["Entity"]["Continuous"][Attacker_mtrx_row_index, :]
             if idx_action == 3:
                 # move to attacker
-                pass
-            elif idx_action == -2:
+                self.get_close(Attacker_info)
+            elif idx_action == 4:
                 # evade attacker
                 # the same as the evade method by default
                 self.evade(Attacker_info)
-        elif idx_action in [2, 4, 5, -3, -4]:
+        elif idx_action in [5, 6, 7, 8, 9]:
             # relates to BFF, weakest ennemy player or NPC
             own_population = unmasked_obs[0,
                                           dict_feature_col["Entity"]["Continuous"]["Population"]]
@@ -160,35 +160,35 @@ class AttackMageForTranslators(Scripted):
             #     self.ob.agent, nmmo.Serialized.Entity.Population)
             _, _, _, BFF_mtrx_row_idx, weakest_ennemy_plr_mtrx_row_idx, weakest_NPC_mtrx_row_idx = self.scan_soldiers_around(
                 unmasked_obs, own_population)
-            if idx_action == 2:
+            if idx_action == 5:
                 # move to BFF
                 if BFF_mtrx_row_idx != 0:
                     BFF_info = unmasked_obs[BFF_mtrx_row_idx, :]
                     self.get_close(BFF_info)
                 else:
                     self.explore()
-            elif idx_action == 4:
+            elif idx_action == 6:
                 # move to weakest ennemy player
                 if weakest_ennemy_plr_mtrx_row_idx != 0:
                     weakest_ennemy_plr_info = unmasked_obs[weakest_ennemy_plr_mtrx_row_idx, :]
                     self.get_close(weakest_ennemy_plr_info)
                 else:
                     self.explore()
-            elif idx_action == 5:
+            elif idx_action == 7:
                 # move to weakest NPC
                 if weakest_NPC_mtrx_row_idx != 0:
                     weakest_NPC_info = unmasked_obs[weakest_NPC_mtrx_row_idx, :]
                     self.get_close(weakest_NPC_info)
                 else:
                     self.explore()
-            elif idx_action == -3:
+            elif idx_action == 8:
                 # evade weakest ennemy player
                 if weakest_ennemy_plr_mtrx_row_idx != 0:
                     weakest_ennemy_plr_info = unmasked_obs[weakest_ennemy_plr_mtrx_row_idx, :]
                     self.evade(weakest_ennemy_plr_info)
                 else:
                     self.explore()
-            elif idx_action == -4:
+            elif idx_action == 9:
                 # evade weakest NPC
                 if weakest_NPC_mtrx_row_idx != 0:
                     weakest_NPC_info = unmasked_obs[weakest_NPC_mtrx_row_idx, :]
